@@ -49,11 +49,9 @@
         const { useState, useEffect, useRef } = React;
         
         // =================================================================================
-        // ⚡ CONFIGURACIÓN MAESTRA DEL CEREBRO ⚡
+        // ⚡ CONFIGURACIÓN MAESTRA (CLOUD LINK) ⚡
         // =================================================================================
-        // Para local: "http://localhost:8000"
-        // Para web (con Ngrok): "https://abunda.profcr.com.ngrok.app"
-        const API_BASE_URL = "http://localhost:8000"; 
+        const API_BASE_URL = "https://abunda.profcr.com.ngrok.app"; 
         // =================================================================================
 
         // --- COMPONENTS ---
@@ -70,13 +68,11 @@
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            {/* Hidden status indicator, only shows if offline/error */}
-                            {status !== 'Online' && (
-                                <span className="text-xs text-red-400 bg-red-900/20 px-2 py-1 rounded border border-red-900/50 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                                    System Offline
-                                </span>
-                            )}
+                            {/* Status Indicator (Subtle) */}
+                            <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
+                                <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
+                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting...'}
+                            </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Login
                             </button>
@@ -84,9 +80,9 @@
                     </nav>
 
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/30 bg-green-900/20 text-green-400 text-xs font-bold mb-8 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            Llama 3 Neural Engine
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
+                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                            Enterprise AI v2.0
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
                             Your Company's Data.<br />
@@ -94,7 +90,7 @@
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12 font-light">
                             Private Artificial Intelligence Platform.
-                            <br/>Secure RAG. Local Vectorization. Zero Hallucinations.
+                            <br/>Secure RAG. Cloud Vectorization. Zero Hallucinations.
                         </p>
                         
                         <div className="flex gap-4">
@@ -111,7 +107,7 @@
             );
         };
 
-        // 2. MAIN APP LAYOUT
+        // 2. APP LAYOUT
         const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
@@ -139,6 +135,10 @@
                         </nav>
 
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
+                            <div className="mb-4 px-2">
+                                <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
+                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
+                            </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
                                 <div className="text-left">
@@ -167,10 +167,10 @@
             </button>
         );
 
-        // 3. CHAT INTERFACE (RAG Core)
+        // 3. CHAT INTERFACE
         const ChatInterface = () => {
             const [messages, setMessages] = useState([
-                { id: 1, role: 'ai', content: 'System initialized. I am connected to your private document database. How can I assist?', sources: [] }
+                { id: 1, role: 'ai', content: 'Secure Link Established. I am ready to process your queries using the cloud brain.', sources: [] }
             ]);
             const [input, setInput] = useState('');
             const [isProcessing, setIsProcessing] = useState(false);
@@ -189,10 +189,8 @@
                 setIsProcessing(true);
 
                 try {
-                    // Call Python Backend (Directly to API_BASE_URL)
-                    const cleanUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-                    
-                    const response = await fetch(`${cleanUrl}/api/chat`, {
+                    // Call Python Backend via Ngrok
+                    const response = await fetch(`${API_BASE_URL}/api/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ message: userMsg.content })
@@ -215,7 +213,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot connect to brain at ${API_BASE_URL}. Is the server running?`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}.`,
                         isError: true 
                     }]);
                 } finally {
@@ -232,7 +230,7 @@
                             </div>
                             <div>
                                 <h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2>
-                                <p className="text-[10px] text-slate-500">Secure RAG Pipeline</p>
+                                <p className="text-[10px] text-slate-500">Connected to Cloud Llama 3</p>
                             </div>
                         </div>
                         <div className="text-xs bg-slate-100 px-3 py-1 rounded border border-slate-200 text-slate-600 font-mono flex items-center gap-2">
@@ -253,11 +251,11 @@
                                     {msg.sources && msg.sources.length > 0 && (
                                         <div className="mt-4 pt-3 border-t border-slate-100/10">
                                             <p className="text-[10px] font-bold opacity-60 mb-2 uppercase flex items-center gap-1">
-                                                <i className="ph ph-database"></i> Sources
+                                                <i className="ph ph-database"></i> Source Context
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600 hover:bg-blue-50'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
@@ -272,7 +270,7 @@
                             <div className="flex justify-start w-full animate-pulse">
                                 <div className="bg-white border border-blue-200 text-blue-800 rounded-2xl rounded-bl-none p-3 shadow-sm flex items-center gap-3 text-xs font-mono">
                                     <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                    Processing Vector Query...
+                                    Thinking & Retrieving...
                                 </div>
                             </div>
                         )}
@@ -323,14 +321,14 @@
                 formData.append("file", file);
 
                 try {
-                    const cleanUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-                    const res = await fetch(`${cleanUrl}/api/upload`, {
+                    const res = await fetch(`${API_BASE_URL}/api/upload`, {
                         method: 'POST',
                         body: formData
                     });
                     
                     if (!res.ok) {
-                        throw new Error("Upload failed");
+                        const err = await res.json();
+                        throw new Error(err.detail || "Upload failed");
                     }
                     
                     const data = await res.json();
