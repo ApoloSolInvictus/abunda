@@ -48,41 +48,43 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // =================================================================================
-        // ⚡ CONFIGURACIÓN MAESTRA (NGROK TUNNEL) ⚡
-        // =================================================================================
-        const API_BASE_URL = "https://abunda.profcr.com.ngrok.app"; 
-        // =================================================================================
-
         // --- COMPONENTS ---
 
-        // 1. LANDING PAGE VIEW
-        const LandingView = ({ onLogin, status }) => {
+        // 1. LANDING PAGE
+        const LandingView = ({ onLogin, apiUrl, setApiUrl, status }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
                             </div>
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
-                        <div className="flex items-center gap-4">
-                            {/* Status Indicator */}
-                            <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
-                                <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting to Ngrok...'}
+                        
+                        <div className="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700">
+                            {/* API CONFIGURATION INPUT */}
+                            <div className="flex items-center">
+                                <span className={`w-2 h-2 rounded-full mr-2 ${status === 'Online' ? 'bg-green-400' : 'bg-red-500 animate-pulse'}`}></span>
+                                <input 
+                                    type="text" 
+                                    value={apiUrl} 
+                                    onChange={(e) => setApiUrl(e.target.value)}
+                                    className="bg-transparent text-xs text-slate-300 focus:outline-none w-64 font-mono placeholder-slate-600"
+                                    placeholder="Enter Ngrok URL (e.g. https://xyz.ngrok.app)"
+                                />
                             </div>
-                            <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
-                                Client Portal
+                            
+                            <button onClick={onLogin} className="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-500 transition text-xs shadow-lg">
+                                Connect & Enter
                             </button>
                         </div>
                     </nav>
 
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                            Enterprise AI v2.0
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold mb-8 uppercase tracking-widest ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
+                            <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
+                            {status === 'Online' ? 'Brain Connected' : 'Brain Disconnected'}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
                             Your Company's Data.<br />
@@ -94,24 +96,19 @@
                         </p>
                         
                         <div className="flex gap-4">
-                            <button onClick={onLogin} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-2xl shadow-blue-900/50 transition transform hover:-translate-y-1 flex items-center gap-3">
+                            <button onClick={onLogin} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-2xl shadow-blue-900/50 transition transform hover:-translate-y-1 flex items-center gap-2">
                                 <i className="ph ph-rocket-launch text-xl"></i> Launch Workspace
                             </button>
                         </div>
                     </header>
-
-                    <div className="py-10 border-t border-slate-800 w-full text-center">
-                         <p className="text-slate-500 text-xs tracking-widest uppercase">Trusted by Future Enterprises</p>
-                    </div>
                 </div>
             );
         };
 
         // 2. APP LAYOUT
-        const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
+        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, apiUrl, status }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
-                    {/* Sidebar */}
                     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
                         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
                             <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
@@ -136,8 +133,11 @@
 
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
                             <div className="mb-4 px-2">
-                                <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] text-slate-400 font-mono">Backend:</span>
+                                    <span className={`text-[10px] font-bold ${status === 'Online' ? 'text-green-400' : 'text-red-500 animate-pulse'}`}>{status}</span>
+                                </div>
+                                <div className="text-[10px] text-slate-600 truncate" title={apiUrl}>{apiUrl}</div>
                             </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
@@ -148,8 +148,6 @@
                             </button>
                         </div>
                     </aside>
-
-                    {/* Main Content */}
                     <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-slate-50">
                         {children}
                     </main>
@@ -168,7 +166,7 @@
         );
 
         // 3. CHAT INTERFACE
-        const ChatInterface = () => {
+        const ChatInterface = ({ apiUrl }) => {
             const [messages, setMessages] = useState([
                 { id: 1, role: 'ai', content: 'Secure Link Established. I am ready to process your queries using the cloud brain.', sources: [] }
             ]);
@@ -189,9 +187,8 @@
                 setIsProcessing(true);
 
                 try {
-                    // Call Python Backend via Ngrok
-                    // Remove trailing slash if present
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    // Normalize API URL
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
                     
                     const response = await fetch(`${cleanUrl}/api/chat`, {
                         method: 'POST',
@@ -216,7 +213,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel.`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${apiUrl}.`,
                         isError: true 
                     }]);
                 } finally {
@@ -298,16 +295,13 @@
                                 <i className="ph ph-paper-plane-right text-lg"></i>
                             </button>
                         </div>
-                        <p className="text-center text-[10px] text-slate-400 mt-2 flex items-center justify-center gap-1">
-                            <i className="ph ph-lock-key"></i> Encrypted Channel • {API_BASE_URL}
-                        </p>
                     </div>
                 </div>
             );
         };
 
         // 4. KNOWLEDGE BASE
-        const KnowledgeBase = () => {
+        const KnowledgeBase = ({ apiUrl }) => {
             const [uploading, setUploading] = useState(false);
             const [status, setStatus] = useState("");
             const [files, setFiles] = useState([]);
@@ -324,7 +318,7 @@
                 formData.append("file", file);
 
                 try {
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
                     const res = await fetch(`${cleanUrl}/api/upload`, {
                         method: 'POST',
                         body: formData
@@ -470,12 +464,17 @@
         const AbundaApp = () => {
             const [view, setView] = useState('landing');
             const [activeTab, setActiveTab] = useState('chat');
+            // Default to the provided ngrok URL
+            const [apiUrl, setApiUrl] = useState("https://abunda.profcr.com.ngrok.app");
             const [status, setStatus] = useState("Checking...");
 
             useEffect(() => {
+                // Use a debounce or a simple interval to check
                 const check = async () => {
+                    if (!apiUrl) return;
                     try {
-                        const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                        const cleanUrl = apiUrl.replace(/\/$/, "");
+                        // Simple HEAD or GET to see if it responds
                         const res = await fetch(`${cleanUrl}/`);
                         if (res.ok) setStatus("Online");
                         else setStatus("Error");
@@ -484,18 +483,18 @@
                     }
                 };
                 check();
-                const interval = setInterval(check, 5000);
+                const interval = setInterval(check, 10000); // Check every 10s
                 return () => clearInterval(interval);
-            }, []);
+            }, [apiUrl]);
 
             if (view === 'landing') {
-                return <LandingView onLogin={() => setView('app')} status={status} />;
+                return <LandingView onLogin={() => setView('app')} status={status} apiUrl={apiUrl} setApiUrl={setApiUrl} />;
             }
 
             return (
-                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} status={status}>
-                    {activeTab === 'chat' && <ChatInterface />}
-                    {activeTab === 'knowledge' && <KnowledgeBase />}
+                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} apiUrl={apiUrl} status={status}>
+                    {activeTab === 'chat' && <ChatInterface apiUrl={apiUrl} />}
+                    {activeTab === 'knowledge' && <KnowledgeBase apiUrl={apiUrl} />}
                     {activeTab === 'users' && <UsersModule />}
                     {activeTab === 'settings' && <SettingsModule />}
                 </AppLayout>
