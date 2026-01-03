@@ -43,7 +43,7 @@
         
         // --- DEFAULT CONFIGURATION ---
         // You can change this in the UI now!
-        const DEFAULT_API_URL = "https://abunda.profcr.com/AbundaIA-English.html"; 
+        const DEFAULT_API_URL = "http://localhost:8000"; 
 
         // --- COMPONENTS ---
 
@@ -68,7 +68,7 @@
                                     value={apiUrl} 
                                     onChange={(e) => setApiUrl(e.target.value)}
                                     className="bg-transparent text-xs text-slate-300 focus:outline-none w-48 font-mono"
-                                    placeholder="API URL (e.g., https://abunda.profcr.com/AbundaIA-English.html)"
+                                    placeholder="API URL (e.g., http://localhost:8000)"
                                 />
                             </div>
                             
@@ -491,3 +491,4 @@
     </script>
 </body>
 </html>
+
