@@ -51,7 +51,6 @@
         // =================================================================================
         // ⚡ CONFIGURACIÓN MAESTRA (NGROK TUNNEL) ⚡
         // =================================================================================
-        // Esta es la dirección fija de tu túnel. Asegúrate de que Ngrok apunte al puerto 8000.
         const API_BASE_URL = "https://abunda.profcr.com.ngrok.app"; 
         // =================================================================================
 
@@ -61,7 +60,7 @@
         const LandingView = ({ onLogin, status }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
@@ -261,7 +260,7 @@
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
