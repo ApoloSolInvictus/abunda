@@ -8,7 +8,7 @@
     <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 2. Phosphor Icons (Stable & Fast) -->
+    <!-- 2. Phosphor Icons (Stable) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <!-- 3. React Core -->
@@ -24,21 +24,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
-        
-        /* Animations */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Icon adjustment */
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -48,14 +41,14 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // --- CONFIGURATION ---
-        // Ensure this matches the port where your python main.py is running
-        const API_BASE_URL = "http://localhost:8000"; 
+        // --- DEFAULT CONFIGURATION ---
+        // You can change this in the UI now!
+        const DEFAULT_API_URL = "https://abunda.profcr.com/AbundaIA-English.html"; 
 
         // --- COMPONENTS ---
 
         // 1. LANDING PAGE
-        const LandingView = ({ onLogin }) => {
+        const LandingView = ({ onLogin, apiUrl, setApiUrl, status }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
                     <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
@@ -65,15 +58,30 @@
                             </div>
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
-                        <button onClick={onLogin} className="px-5 py-2 border border-slate-600 rounded-lg font-medium hover:bg-slate-800 transition text-sm">
-                            Client Portal
-                        </button>
+                        
+                        <div className="flex items-center gap-4">
+                            {/* API Configuration Panel */}
+                            <div className="hidden md:flex items-center bg-slate-800 rounded-lg px-3 py-1 border border-slate-700">
+                                <span className={`w-2 h-2 rounded-full mr-2 ${status === 'Online' ? 'bg-green-400' : 'bg-red-500 animate-pulse'}`}></span>
+                                <input 
+                                    type="text" 
+                                    value={apiUrl} 
+                                    onChange={(e) => setApiUrl(e.target.value)}
+                                    className="bg-transparent text-xs text-slate-300 focus:outline-none w-48 font-mono"
+                                    placeholder="API URL (e.g., https://abunda.profcr.com/AbundaIA-English.html)"
+                                />
+                            </div>
+                            
+                            <button onClick={onLogin} className="px-5 py-2 border border-slate-600 rounded-lg font-medium hover:bg-slate-800 transition text-sm">
+                                Client Portal
+                            </button>
+                        </div>
                     </nav>
 
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/30 bg-green-900/20 text-green-400 text-xs font-bold mb-8 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            Llama 3 Engine Active
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold mb-8 uppercase tracking-widest ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
+                            <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
+                            {status === 'Online' ? 'Llama 3 Brain Connected' : 'Brain Disconnected'}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
                             Your Company's Data.<br />
@@ -89,36 +97,19 @@
                                 <i className="ph ph-terminal-window text-xl"></i> Launch System
                             </button>
                         </div>
+                        
+                        {status !== 'Online' && (
+                            <p className="mt-8 text-xs text-red-400 bg-red-900/20 px-4 py-2 rounded border border-red-900/50">
+                                ⚠️ Backend not detected at {apiUrl}. Ensure 'python main.py' is running.
+                            </p>
+                        )}
                     </header>
                 </div>
             );
         };
 
         // 2. APP LAYOUT
-        const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
-            const [backendStatus, setBackendStatus] = useState("Checking...");
-            const [brainInfo, setBrainInfo] = useState({ active: false, model: "Unknown" });
-
-            useEffect(() => {
-                const checkHealth = async () => {
-                    try {
-                        const res = await fetch(`${API_BASE_URL}/`);
-                        if (res.ok) {
-                            const data = await res.json();
-                            setBackendStatus("Online");
-                            setBrainInfo({ active: data.brain_active, model: data.model });
-                        } else {
-                            setBackendStatus("Error");
-                        }
-                    } catch (e) {
-                        setBackendStatus("Offline");
-                    }
-                };
-                checkHealth();
-                const interval = setInterval(checkHealth, 5000); // Check every 5s
-                return () => clearInterval(interval);
-            }, []);
-
+        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, apiUrl, status }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
                     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
@@ -146,12 +137,9 @@
                             <div className="mb-4 px-2 space-y-1">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[10px] text-slate-400 font-mono">Backend:</span>
-                                    <span className={`text-[10px] font-bold ${backendStatus === 'Online' ? 'text-green-400' : 'text-red-500 animate-pulse'}`}>{backendStatus}</span>
+                                    <span className={`text-[10px] font-bold ${status === 'Online' ? 'text-green-400' : 'text-red-500 animate-pulse'}`}>{status}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] text-slate-400 font-mono">Brain:</span>
-                                    <span className={`text-[10px] font-bold ${brainInfo.active ? 'text-green-400' : 'text-yellow-500'}`}>{brainInfo.model}</span>
-                                </div>
+                                <div className="text-[10px] text-slate-600 truncate">{apiUrl}</div>
                             </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
@@ -179,8 +167,8 @@
             </button>
         );
 
-        // 3. CHAT INTERFACE (REAL CONNECTION)
-        const ChatInterface = () => {
+        // 3. CHAT INTERFACE
+        const ChatInterface = ({ apiUrl }) => {
             const [messages, setMessages] = useState([
                 { id: 1, role: 'ai', content: 'Llama 3 RAG System Online. Ready to process your queries. Upload documents first!', sources: [] }
             ]);
@@ -201,8 +189,7 @@
                 setIsProcessing(true);
 
                 try {
-                    // Call Python Backend
-                    const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                    const response = await fetch(`${apiUrl}/api/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ message: userMsg.content })
@@ -225,7 +212,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: "CONNECTION ERROR: Cannot reach backend. Check if 'python main.py' is running on port 8000.",
+                        content: `CONNECTION ERROR: Cannot reach backend at ${apiUrl}.`,
                         isError: true 
                     }]);
                 } finally {
@@ -242,11 +229,8 @@
                             </div>
                             <div>
                                 <h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2>
-                                <p className="text-[10px] text-slate-500">Connected to Local Llama 3</p>
+                                <p className="text-[10px] text-slate-500">Connected to: {apiUrl}</p>
                             </div>
-                        </div>
-                        <div className="text-xs bg-slate-100 px-3 py-1 rounded border border-slate-200 text-slate-600 font-mono flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500"></span> API Status: Connected
                         </div>
                     </header>
 
@@ -307,16 +291,13 @@
                                 <i className="ph ph-paper-plane-right text-lg"></i>
                             </button>
                         </div>
-                        <p className="text-center text-[10px] text-slate-400 mt-2 flex items-center justify-center gap-1">
-                            <i className="ph ph-lock-key"></i> Encrypted Channel • Local Processing
-                        </p>
                     </div>
                 </div>
             );
         };
 
-        // 4. KNOWLEDGE BASE (REAL UPLOAD)
-        const KnowledgeBase = () => {
+        // 4. KNOWLEDGE BASE
+        const KnowledgeBase = ({ apiUrl }) => {
             const [uploading, setUploading] = useState(false);
             const [status, setStatus] = useState("");
             const [files, setFiles] = useState([]);
@@ -333,7 +314,7 @@
                 formData.append("file", file);
 
                 try {
-                    const res = await fetch(`${API_BASE_URL}/api/upload`, {
+                    const res = await fetch(`${apiUrl}/api/upload`, {
                         method: 'POST',
                         body: formData
                     });
@@ -356,7 +337,7 @@
 
                 } catch (error) {
                     console.error(error);
-                    setStatus(`❌ Error: ${error.message}. Is backend running?`);
+                    setStatus(`❌ Error: ${error.message}. Is backend running at ${apiUrl}?`);
                 } finally {
                     setUploading(false);
                 }
@@ -369,9 +350,6 @@
                             <h2 className="text-2xl font-bold text-slate-800 font-display">Knowledge Base</h2>
                             <p className="text-sm text-slate-500">Manage documents feeding the Llama 3 engine.</p>
                         </div>
-                        <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 flex items-center gap-2 shadow-lg shadow-slate-900/20">
-                            <i className="ph ph-arrows-clockwise text-lg"></i> Refresh Status
-                        </button>
                     </div>
                     
                     <div 
@@ -409,13 +387,12 @@
                                     <th className="px-6 py-3 font-medium">Size</th>
                                     <th className="px-6 py-3 font-medium">Status</th>
                                     <th className="px-6 py-3 font-medium">Date</th>
-                                    <th className="px-6 py-3 font-medium text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {files.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-8 text-center text-slate-400 italic">No documents uploaded yet.</td>
+                                        <td colSpan="4" className="px-6 py-8 text-center text-slate-400 italic">No documents uploaded yet.</td>
                                     </tr>
                                 ) : (
                                     files.map((file) => (
@@ -433,11 +410,6 @@
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-400 text-xs">{file.date}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button className="text-slate-400 hover:text-red-500 transition">
-                                                    <i className="ph ph-trash"></i>
-                                                </button>
-                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -456,7 +428,7 @@
                 </div>
                 <h3 className="text-lg font-bold text-slate-700 mb-2">User Module (Epic 6.2)</h3>
                 <p className="text-center max-w-md text-sm">
-                    Role management (Admin, Editor, Viewer) and departmental access permissions will be managed here.
+                    Role management (Admin, Editor, Viewer).
                     <br/><span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded mt-2 inline-block">Pending Implementation</span>
                 </p>
             </div>
@@ -469,7 +441,7 @@
                 </div>
                 <h3 className="text-lg font-bold text-slate-700 mb-2">LLM Configuration (Epic 6.3)</h3>
                 <p className="text-center max-w-md text-sm">
-                    Temperature adjustment, Model selection (Local/Cloud), and retrieval parameters.
+                    Temperature adjustment and Model selection.
                 </p>
             </div>
         );
@@ -478,18 +450,36 @@
         const AbundaApp = () => {
             const [view, setView] = useState('landing');
             const [activeTab, setActiveTab] = useState('chat');
+            const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
+            const [status, setStatus] = useState("Checking...");
+
+            // Check API Status
+            useEffect(() => {
+                const check = async () => {
+                    try {
+                        const res = await fetch(`${apiUrl}/`);
+                        if (res.ok) setStatus("Online");
+                        else setStatus("Error");
+                    } catch {
+                        setStatus("Offline");
+                    }
+                };
+                check();
+                const interval = setInterval(check, 5000);
+                return () => clearInterval(interval);
+            }, [apiUrl]);
 
             const handleLogin = () => setView('app');
             const handleLogout = () => setView('landing');
 
             if (view === 'landing') {
-                return <LandingView onLogin={handleLogin} />;
+                return <LandingView onLogin={handleLogin} apiUrl={apiUrl} setApiUrl={setApiUrl} status={status} />;
             }
 
             return (
-                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
-                    {activeTab === 'chat' && <ChatInterface />}
-                    {activeTab === 'knowledge' && <KnowledgeBase />}
+                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} apiUrl={apiUrl} status={status}>
+                    {activeTab === 'chat' && <ChatInterface apiUrl={apiUrl} />}
+                    {activeTab === 'knowledge' && <KnowledgeBase apiUrl={apiUrl} />}
                     {activeTab === 'users' && <UsersModule />}
                     {activeTab === 'settings' && <SettingsModule />}
                 </AppLayout>
