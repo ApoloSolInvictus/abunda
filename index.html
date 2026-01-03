@@ -51,6 +51,7 @@
         // =================================================================================
         // ⚡ CONFIGURACIÓN MAESTRA (NGROK TUNNEL) ⚡
         // =================================================================================
+        // Esta es la dirección fija de tu túnel. Asegúrate de que Ngrok apunte al puerto 8000.
         const API_BASE_URL = "https://abunda.profcr.com.ngrok.app"; 
         // =================================================================================
 
@@ -60,7 +61,7 @@
         const LandingView = ({ onLogin, status }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
+                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full gap-4">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
