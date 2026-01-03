@@ -1,1 +1,2 @@
-Uvicorn running on http://0.0.0.0:8000
+Uvicorn running on https://abunda.profcr.com/AbundaIA-English.html
+
