@@ -1,6 +1,3 @@
-# main.py
-# Servidor API para Abunda OS con CORS totalmente abierto para desarrollo local.
-
 import os
 import shutil
 import uvicorn
@@ -13,7 +10,7 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ABUNDA_API")
 
-# Intentar importar el cerebro (si falla, usará modo simulación para que el server arranque igual)
+# Intentar importar el cerebro
 try:
     from rag_engine import brain
     BRAIN_ACTIVE = True
@@ -21,13 +18,12 @@ except ImportError as e:
     logger.warning(f"⚠️ No se pudo cargar rag_engine: {e}. Iniciando en modo SIMULACIÓN.")
     BRAIN_ACTIVE = False
 
-app = FastAPI(title="ABUNDA API v2.6")
+app = FastAPI(title="ABUNDA API v2.9")
 
 # --- CONFIGURACIÓN CORS (PERMISIVA) ---
-# Esto permite que cualquier origen (incluso archivos locales) haga peticiones.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],  # Permite conexiones desde cualquier lugar (incluido tu archivo local)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,7 +57,6 @@ async def chat_endpoint(request: ChatRequest):
             logger.error(f"❌ Error en cerebro: {e}")
             raise HTTPException(status_code=500, detail=str(e))
     else:
-        # Respuesta simulada si no hay cerebro conectado
         return {
             "response": f"[SIMULACIÓN] Backend conectado pero Llama 3 no disponible. Recibí: '{request.message}'",
             "sources": ["System"]
@@ -91,6 +86,6 @@ async def upload_endpoint(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    print("🚀 ABUNDA Server v2.6 Iniciando...")
-    # Escucha en 0.0.0.0 para aceptar conexiones de red local si es necesario
+    print("🚀 ABUNDA Server Iniciando...")
+    # Escucha en 0.0.0.0 para aceptar conexiones de red local
     uvicorn.run(app, host="0.0.0.0", port=8000)
