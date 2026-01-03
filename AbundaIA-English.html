@@ -8,7 +8,7 @@
     <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 2. Phosphor Icons (CSS Based - Stable) -->
+    <!-- 2. Phosphor Icons (Stable) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <!-- 3. React Core -->
@@ -38,7 +38,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Icon styles adjustment */
+        /* Icon adjustment */
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -47,10 +47,13 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        
+        // --- CONFIGURATION ---
+        const API_BASE_URL = "http://localhost:8000"; // Address of your Python Backend
 
         // --- COMPONENTS ---
 
-        // 1. LANDING PAGE VIEW (Technical Focus Only)
+        // 1. LANDING PAGE
         const LandingView = ({ onLogin }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
@@ -69,55 +72,31 @@
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/30 bg-green-900/20 text-green-400 text-xs font-bold mb-8 uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            RAG Operating System v2.0
+                            Llama 3 Engine Active
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
-                            Your Company has Data.<br />
+                            Your Company's Data.<br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Abunda gives it a Voice.</span>
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12 font-light">
                             Private Artificial Intelligence Platform.
-                            <br/>Document ingestion, local vectorization, and precise answers without hallucinations.
+                            <br/>Secure RAG. Local Vectorization. Zero Hallucinations.
                         </p>
                         
                         <div className="flex gap-4">
                             <button onClick={onLogin} className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-xl shadow-blue-900/50 transition transform hover:-translate-y-1 flex items-center gap-2">
-                                <i className="ph ph-terminal-window text-xl"></i> Launch Tech Demo
+                                <i className="ph ph-terminal-window text-xl"></i> Launch System
                             </button>
                         </div>
                     </header>
-
-                    <section className="py-16 bg-slate-950 border-t border-slate-800">
-                        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12 text-center md:text-left">
-                            <div>
-                                <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2 justify-center md:justify-start">
-                                    <i className="ph ph-shield-check text-green-400 text-2xl"></i> Zero-Trust Privacy
-                                </h3>
-                                <p className="text-slate-500 text-sm">Your data never leaves your secure environment. Compatible with On-Premise and Private Cloud deployment.</p>
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2 justify-center md:justify-start">
-                                    <i className="ph ph-database text-blue-400 text-2xl"></i> Dynamic Vectorization
-                                </h3>
-                                <p className="text-slate-500 text-sm">Integrated Qdrant engine for high-precision semantic search across millions of documents.</p>
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2 justify-center md:justify-start">
-                                    <i className="ph ph-lightning text-yellow-400 text-2xl"></i> Agnostic Models
-                                </h3>
-                                <p className="text-slate-500 text-sm">Connect Llama 3, Mistral, or GPT-4. You control the brain behind the operation.</p>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             );
         };
 
-        // 2. MAIN APP LAYOUT
+        // 2. APP LAYOUT
         const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
-                    {/* Sidebar */}
                     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
                         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
                             <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
@@ -133,10 +112,9 @@
                             <SidebarItem icon="ph-chat-circle-text" label="RAG Chat" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
                             <SidebarItem icon="ph-upload-simple" label="Knowledge Base" active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')} />
                             <div className="my-4 pt-4 border-t border-slate-800">
-                                <p className="px-4 text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-2">Administration</p>
+                                <p className="px-4 text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-2">Admin</p>
                                 <SidebarItem icon="ph-users" label="Users & Roles" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
                                 <SidebarItem icon="ph-gear" label="LLM Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
-                                <SidebarItem icon="ph-activity" label="System Logs" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
                             </div>
                         </nav>
 
@@ -150,8 +128,6 @@
                             </button>
                         </div>
                     </aside>
-
-                    {/* Main Content */}
                     <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-slate-50">
                         {children}
                     </main>
@@ -169,18 +145,18 @@
             </button>
         );
 
-        // 3. CHAT INTERFACE (RAG Core)
+        // 3. CHAT INTERFACE (REAL CONNECTION)
         const ChatInterface = () => {
             const [messages, setMessages] = useState([
-                { id: 1, role: 'ai', content: 'RAG System ready. Knowledge base indexed. What do you need to query today?', sources: [] }
+                { id: 1, role: 'ai', content: 'System Online. Llama 3 is ready. Ask me anything about your uploaded documents.', sources: [] }
             ]);
             const [input, setInput] = useState('');
             const [isProcessing, setIsProcessing] = useState(false);
-            const [processingStep, setProcessingStep] = useState('');
             const chatEndRef = useRef(null);
 
-            const scrollToBottom = () => chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            useEffect(scrollToBottom, [messages, isProcessing]);
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, [messages, isProcessing]);
 
             const handleSend = async () => {
                 if (!input.trim()) return;
@@ -190,30 +166,37 @@
                 setInput('');
                 setIsProcessing(true);
 
-                // Simulation of Technical RAG Pipeline (Epica 1.7)
-                const steps = [
-                    "Analyzing Intent (Prompt Router)...",
-                    "Generating Embeddings (text-embedding-ada-002)...",
-                    "Qdrant Vector Query (Top-K=4)...",
-                    "Result Re-ranking (Cohere)...",
-                    "Synthesizing Response (Llama-3)..."
-                ];
+                try {
+                    // Call Python Backend
+                    const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userMsg.content })
+                    });
 
-                for (let step of steps) {
-                    setProcessingStep(step);
-                    await new Promise(r => setTimeout(r, 800)); 
+                    if (!response.ok) throw new Error("Backend connection failed");
+
+                    const data = await response.json();
+
+                    const aiResponse = {
+                        id: Date.now() + 1,
+                        role: 'ai',
+                        content: data.response, // Real response from Llama 3
+                        sources: data.sources || []
+                    };
+                    
+                    setMessages(prev => [...prev, aiResponse]);
+                } catch (error) {
+                    console.error(error);
+                    setMessages(prev => [...prev, { 
+                        id: Date.now() + 1, 
+                        role: 'ai', 
+                        content: "Error: Could not connect to Abunda Brain. Is 'python main.py' running?",
+                        isError: true 
+                    }]);
+                } finally {
+                    setIsProcessing(false);
                 }
-
-                // Simulated accurate response based on "Internal Docs"
-                const aiResponse = {
-                    id: Date.now() + 1,
-                    role: 'ai',
-                    content: "According to 'Standard Operating Procedures v2.4', section 3.1: To initiate an equipment purchase request over $1,000, form FIN-002 must be completed and requires a digital signature from the Area Manager. The estimated approval time is 48 business hours.",
-                    sources: ['SOP_Manual_v2.4.pdf (pg 12)', 'Purchase_Policy_2025.docx']
-                };
-
-                setIsProcessing(false);
-                setMessages(prev => [...prev, aiResponse]);
             };
 
             return (
@@ -225,18 +208,18 @@
                             </div>
                             <div>
                                 <h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2>
-                                <p className="text-[10px] text-slate-500">RAG Engine Active • Collection: "General"</p>
+                                <p className="text-[10px] text-slate-500">Model: Llama 3 (Local)</p>
                             </div>
                         </div>
                         <div className="text-xs bg-slate-100 px-3 py-1 rounded border border-slate-200 text-slate-600 font-mono flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500"></span> API Status: OK
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span> API Status: Connected
                         </div>
                     </header>
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white border-slate-900 rounded-br-sm' : 'bg-white text-slate-700 border-slate-200 rounded-bl-sm'}`}>
+                                <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white border-slate-900 rounded-br-sm' : 'bg-white text-slate-700 border-slate-200 rounded-bl-sm'} ${msg.isError ? 'border-red-500 bg-red-50 text-red-600' : ''}`}>
                                     <div className="flex items-center gap-2 mb-2 opacity-50 text-xs uppercase tracking-wider font-bold">
                                         {msg.role === 'user' ? <i className="ph ph-user"></i> : <i className="ph ph-lightning"></i>}
                                         {msg.role === 'user' ? 'User' : 'Abunda AI'}
@@ -246,11 +229,11 @@
                                     {msg.sources && msg.sources.length > 0 && (
                                         <div className="mt-4 pt-3 border-t border-slate-100/10">
                                             <p className="text-[10px] font-bold opacity-60 mb-2 uppercase flex items-center gap-1">
-                                                <i className="ph ph-database"></i> Source of Truth
+                                                <i className="ph ph-database"></i> Source Context
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600 hover:bg-blue-50'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
@@ -265,7 +248,7 @@
                             <div className="flex justify-start w-full animate-pulse">
                                 <div className="bg-white border border-blue-200 text-blue-800 rounded-2xl rounded-bl-none p-3 shadow-sm flex items-center gap-3 text-xs font-mono">
                                     <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                    {processingStep}
+                                    Thinking...
                                 </div>
                             </div>
                         )}
@@ -277,7 +260,7 @@
                             <input 
                                 type="text" 
                                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition shadow-inner text-sm text-slate-800 placeholder:text-slate-400"
-                                placeholder="Type your query here..."
+                                placeholder="Query your documents..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -291,44 +274,96 @@
                             </button>
                         </div>
                         <p className="text-center text-[10px] text-slate-400 mt-2 flex items-center justify-center gap-1">
-                            <i className="ph ph-lock-key"></i> Secure Environment • Data not shared with public models
+                            <i className="ph ph-lock-key"></i> Encrypted Channel • Local Processing
                         </p>
                     </div>
                 </div>
             );
         };
 
-        // 4. KNOWLEDGE BASE
+        // 4. KNOWLEDGE BASE (REAL UPLOAD)
         const KnowledgeBase = () => {
-            const [files, setFiles] = useState([
-                { id: 1, name: 'Operations_Manual_2025.pdf', size: '2.4 MB', status: 'indexed', date: 'Today, 10:23 AM' },
-                { id: 2, name: 'Client_Database_Q4.csv', size: '560 KB', status: 'indexed', date: 'Yesterday, 4:15 PM' },
-                { id: 3, name: 'Master_Legal_Contracts.docx', size: '1.1 MB', status: 'processing', date: 'Just now' }
-            ]);
+            const [uploading, setUploading] = useState(false);
+            const [status, setStatus] = useState("");
+            const [files, setFiles] = useState([]);
+            const fileInputRef = useRef(null);
+
+            const handleUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                setUploading(true);
+                setStatus("Uploading & Vectorizing...");
+
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!res.ok) throw new Error("Upload failed");
+                    
+                    const data = await res.json();
+                    
+                    setStatus("✅ Success: Document indexed.");
+                    // Add to list
+                    setFiles(prev => [...prev, {
+                        id: Date.now(),
+                        name: data.filename,
+                        size: (file.size / 1024).toFixed(1) + " KB",
+                        status: 'indexed',
+                        date: 'Just now'
+                    }]);
+
+                } catch (error) {
+                    console.error(error);
+                    setStatus("❌ Error: Is backend running?");
+                } finally {
+                    setUploading(false);
+                }
+            };
 
             return (
-                <div className="p-8 max-w-5xl mx-auto fade-in h-full overflow-y-auto">
+                <div className="p-8 max-w-5xl mx-auto fade-in slide-up h-full overflow-y-auto">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h2 className="text-2xl font-bold text-slate-800 font-display">Knowledge Base</h2>
-                            <p className="text-sm text-slate-500">Manage documents feeding the Abunda intelligence engine.</p>
+                            <p className="text-sm text-slate-500">Manage documents feeding the Llama 3 engine.</p>
                         </div>
                         <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 flex items-center gap-2 shadow-lg shadow-slate-900/20">
-                            <i className="ph ph-arrows-clockwise text-lg"></i> Re-index All
+                            <i className="ph ph-arrows-clockwise text-lg"></i> Refresh Status
                         </button>
                     </div>
                     
-                    <div className="border-2 border-dashed border-slate-300 bg-slate-50 rounded-xl p-10 text-center mb-8 hover:bg-blue-50/50 hover:border-blue-400 transition cursor-pointer group">
+                    <div 
+                        className="border-2 border-dashed border-slate-300 bg-slate-50 rounded-xl p-10 text-center mb-8 hover:bg-blue-50/50 hover:border-blue-400 transition cursor-pointer group"
+                        onClick={() => !uploading && fileInputRef.current.click()}
+                    >
+                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} accept=".pdf,.txt,.docx" />
+                        
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-slate-100 group-hover:scale-110 transition">
-                            <i className="ph ph-upload-simple text-2xl text-slate-600 group-hover:text-blue-500"></i>
+                            {uploading ? (
+                                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                <i className="ph ph-upload-simple text-2xl text-slate-600 group-hover:text-blue-500"></i>
+                            )}
                         </div>
-                        <h3 className="font-bold text-slate-700 text-base">Upload new documents</h3>
-                        <p className="text-slate-400 text-xs mt-1">Drag PDF, DOCX, TXT files (Max 50MB)</p>
+                        <h3 className="font-bold text-slate-700 text-base">{uploading ? 'Processing...' : 'Click to Upload Document'}</h3>
+                        <p className="text-slate-400 text-xs mt-1">PDF, DOCX, TXT supported</p>
                     </div>
+
+                    {status && (
+                        <div className={`p-3 mb-6 rounded-lg text-sm font-bold text-center ${status.includes('Success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {status}
+                        </div>
+                    )}
 
                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-                            <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Files in System</h3>
+                            <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Indexed Files</h3>
                             <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200 font-mono">Total: {files.length}</span>
                         </div>
                         <table className="w-full text-sm text-left">
@@ -342,34 +377,34 @@
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {files.map((file) => (
-                                    <tr key={file.id} className="hover:bg-slate-50 transition">
-                                        <td className="px-6 py-4 font-medium text-slate-700 flex items-center gap-3">
-                                            <div className="p-2 bg-slate-100 rounded text-slate-500 flex items-center justify-center">
-                                                <i className="ph ph-file-text"></i>
-                                            </div>
-                                            {file.name}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-500 font-mono text-xs">{file.size}</td>
-                                        <td className="px-6 py-4">
-                                            {file.status === 'indexed' ? (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ready
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Processing
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-400 text-xs">{file.date}</td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button className="text-slate-400 hover:text-red-500 transition">
-                                                <i className="ph ph-trash"></i>
-                                            </button>
-                                        </td>
+                                {files.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-6 py-8 text-center text-slate-400 italic">No documents uploaded yet.</td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    files.map((file) => (
+                                        <tr key={file.id} className="hover:bg-slate-50 transition">
+                                            <td className="px-6 py-4 font-medium text-slate-700 flex items-center gap-3">
+                                                <div className="p-2 bg-slate-100 rounded text-slate-500 flex items-center justify-center">
+                                                    <i className="ph ph-file-text"></i>
+                                                </div>
+                                                {file.name}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500 font-mono text-xs">{file.size}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Indexed
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-400 text-xs">{file.date}</td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button className="text-slate-400 hover:text-red-500 transition">
+                                                    <i className="ph ph-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -377,7 +412,7 @@
             );
         };
 
-        // 5. PLACEHOLDER COMPONENTS FOR BACKLOG ITEMS
+        // 5. PLACEHOLDERS
         const UsersModule = () => (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 fade-in">
                 <div className="bg-slate-100 p-6 rounded-full mb-4">
@@ -421,7 +456,6 @@
                     {activeTab === 'knowledge' && <KnowledgeBase />}
                     {activeTab === 'users' && <UsersModule />}
                     {activeTab === 'settings' && <SettingsModule />}
-                    {activeTab === 'logs' && <div className="p-10 text-slate-400 text-center mt-20 font-mono text-sm">System Logs Stream (Epic 8.1) - Inactive</div>}
                 </AppLayout>
             );
         };
