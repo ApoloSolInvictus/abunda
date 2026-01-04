@@ -24,14 +24,21 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
+        
+        /* Animations */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         .slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Icon adjustment */
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -253,7 +260,7 @@
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
@@ -507,4 +514,3 @@
     </script>
 </body>
 </html>
-
