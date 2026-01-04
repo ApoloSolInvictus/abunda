@@ -61,10 +61,9 @@
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            {/* Status Indicator */}
                             <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
                                 <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Brain Connected' : 'Brain Offline'}
+                                {status === 'Online' ? 'Systems Nominal' : 'Connecting to Core...'}
                             </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Client Portal
@@ -91,19 +90,11 @@
                                 <i className="ph ph-rocket-launch text-xl"></i> Launch Workspace
                             </button>
                         </div>
-
-                        {status !== 'Online' && (
-                            <div className="mt-8 p-4 bg-red-950/50 border border-red-500/30 rounded-lg max-w-md text-left">
-                                <p className="text-xs text-red-300 font-bold mb-1"><i className="ph ph-warning"></i> CONNECTION ERROR</p>
-                                <p className="text-[10px] text-red-200 font-mono">
-                                    Unable to reach backend at: <br/>
-                                    <span className="bg-black/30 px-1 rounded">{API_BASE_URL}</span>
-                                    <br/><br/>
-                                    <strong>Fix:</strong> Ensure 'python main.py' is running and Ngrok is active on port 8000.
-                                </p>
-                            </div>
-                        )}
                     </header>
+
+                    <div className="py-10 border-t border-slate-800 w-full text-center">
+                         <p className="text-slate-500 text-xs tracking-widest uppercase">Trusted by Future Enterprises</p>
+                    </div>
                 </div>
             );
         };
@@ -218,7 +209,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check if python main.py is running.`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port.`,
                         isError: true 
                     }]);
                 } finally {
@@ -260,7 +251,7 @@
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
