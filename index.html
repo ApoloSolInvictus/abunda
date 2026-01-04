@@ -57,7 +57,7 @@
         // --- COMPONENTS ---
 
         // 1. LANDING PAGE VIEW
-        const LandingView = ({ onLogin, status }) => {
+        const LandingView = ({ onLogin }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
                     <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
@@ -68,11 +68,6 @@
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
                         <div className="flex items-center gap-4">
-                            {/* Status Indicator */}
-                            <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
-                                <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting...'}
-                            </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Client Portal
                             </button>
@@ -135,10 +130,6 @@
                         </nav>
 
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
-                            <div className="mb-4 px-2">
-                                <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
-                            </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
                                 <div className="text-left">
@@ -218,7 +209,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel.`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port (must be 8000).`,
                         isError: true 
                     }]);
                 } finally {
@@ -475,32 +466,16 @@
         const AbundaApp = () => {
             const [view, setView] = useState('landing');
             const [activeTab, setActiveTab] = useState('chat');
-            const [status, setStatus] = useState("Checking...");
 
-            useEffect(() => {
-                const check = async () => {
-                    try {
-                        const cleanUrl = API_BASE_URL.replace(/\/$/, "");
-                        const res = await fetch(`${cleanUrl}/`, {
-                            headers: { 'ngrok-skip-browser-warning': 'true' }
-                        });
-                        if (res.ok) setStatus("Online");
-                        else setStatus("Error");
-                    } catch {
-                        setStatus("Offline");
-                    }
-                };
-                check();
-                const interval = setInterval(check, 10000); 
-                return () => clearInterval(interval);
-            }, []);
+            const handleLogin = () => setView('app');
+            const handleLogout = () => setView('landing');
 
             if (view === 'landing') {
-                return <LandingView onLogin={() => setView('app')} status={status} />;
+                return <LandingView onLogin={handleLogin} />;
             }
 
             return (
-                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} status={status}>
+                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
                     {activeTab === 'chat' && <ChatInterface />}
                     {activeTab === 'knowledge' && <KnowledgeBase />}
                     {activeTab === 'users' && <UsersModule />}
