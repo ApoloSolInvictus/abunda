@@ -24,21 +24,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
-        
-        /* Animations */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Icon adjustment */
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -71,7 +64,7 @@
                             {/* Status Indicator */}
                             <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
                                 <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting to Ngrok...'}
+                                {status === 'Online' ? 'Brain Connected' : 'Brain Offline'}
                             </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Client Portal
@@ -98,11 +91,19 @@
                                 <i className="ph ph-rocket-launch text-xl"></i> Launch Workspace
                             </button>
                         </div>
-                    </header>
 
-                    <div className="py-10 border-t border-slate-800 w-full text-center">
-                         <p className="text-slate-500 text-xs tracking-widest uppercase">Trusted by Future Enterprises</p>
-                    </div>
+                        {status !== 'Online' && (
+                            <div className="mt-8 p-4 bg-red-950/50 border border-red-500/30 rounded-lg max-w-md text-left">
+                                <p className="text-xs text-red-300 font-bold mb-1"><i className="ph ph-warning"></i> CONNECTION ERROR</p>
+                                <p className="text-[10px] text-red-200 font-mono">
+                                    Unable to reach backend at: <br/>
+                                    <span className="bg-black/30 px-1 rounded">{API_BASE_URL}</span>
+                                    <br/><br/>
+                                    <strong>Fix:</strong> Ensure 'python main.py' is running and Ngrok is active on port 8000.
+                                </p>
+                            </div>
+                        )}
+                    </header>
                 </div>
             );
         };
@@ -111,7 +112,6 @@
         const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
-                    {/* Sidebar */}
                     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
                         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
                             <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
@@ -137,7 +137,7 @@
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
                             <div className="mb-4 px-2">
                                 <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
+                                <div className="text-[10px] text-green-400 font-mono truncate" title={API_BASE_URL}>{API_BASE_URL}</div>
                             </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
@@ -218,7 +218,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port (must be 8000).`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check if python main.py is running.`,
                         isError: true 
                     }]);
                 } finally {
@@ -260,7 +260,7 @@
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
