@@ -51,7 +51,6 @@
         // =================================================================================
         // ⚡ CONFIGURACIÓN MAESTRA (NGROK TUNNEL) ⚡
         // =================================================================================
-        // Esta es la dirección fija de tu túnel. Asegúrate de que Ngrok apunte al puerto 8000.
         const API_BASE_URL = "https://abunda.profcr.com.ngrok.app"; 
         // =================================================================================
 
@@ -61,7 +60,7 @@
         const LandingView = ({ onLogin, status }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full gap-4">
+                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
@@ -72,7 +71,7 @@
                             {/* Status Indicator */}
                             <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
                                 <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting to Ngrok...'}
+                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting...'}
                             </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Client Portal
@@ -219,7 +218,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port (must be 8000).`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel.`,
                         isError: true 
                     }]);
                 } finally {
