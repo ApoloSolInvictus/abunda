@@ -1,94 +1,124 @@
-import os
-import shutil
-import uvicorn
 import logging
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-
-# Configuración de Logs
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ABUNDA_API")
-
-# Intentar conectar con el cerebro (rag_engine.py)
-try:
-    from rag_engine import brain
-    BRAIN_ACTIVE = True
-    logger.info("✅ Cerebro Llama 3 detectado y vinculado.")
-except ImportError as e:
-    logger.warning(f"⚠️ No se pudo cargar rag_engine: {e}. Iniciando en modo SIMULACIÓN.")
-    BRAIN_ACTIVE = False
-
-app = FastAPI(title="ABUNDA API v4.0")
-
-# --- CONFIGURACIÓN CORS BLINDADA ---
-# Permitimos * (todos) para que Ngrok no bloquee la conexión entrante
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+import sys
+import os
+from llama_index.core import (
+    VectorStoreIndex,
+    SimpleDirectoryReader,
+    StorageContext,
+    Settings
 )
+from llama_index.vector_stores.qdrant import QdrantVectorStore
+from llama_index.llms.ollama import Ollama
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from qdrant_client import QdrantClient
 
-UPLOAD_DIR = "temp_uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+# --- CONFIGURATION ---
+# Qdrant must be running in Docker: docker run -p 6333:6333 qdrant/qdrant
+QDRANT_URL = "http://localhost:6333"
+COLLECTION_NAME = "abunda_knowledge"
 
-class ChatRequest(BaseModel):
-    message: str
+# Ollama Configuration
+OLLAMA_URL = "http://localhost:11434"
+MODEL_NAME = "llama3"
 
-@app.get("/")
-def health_check():
-    """Ping para verificar si el sistema está vivo."""
-    return {
-        "status": "online", 
-        "brain": "Llama 3" if BRAIN_ACTIVE else "Simulated",
-        "port": 8000
-    }
+# Logs
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger("ABUNDA_BRAIN")
 
-@app.post("/api/chat")
-async def chat_endpoint(request: ChatRequest):
-    """Procesa mensajes de chat."""
-    logger.info(f"📨 Chat recibido: {request.message}")
-    
-    if BRAIN_ACTIVE:
+class AbundaBrain:
+    def __init__(self):
+        logger.info(f"⚡ Initializing ABUNDA Brain with {MODEL_NAME}...")
+        self.active = False
+        self.index = None
+        
         try:
-            # Enviar al cerebro
-            response = brain.query(request.message)
-            return {"response": response, "sources": ["Base de Conocimiento"]}
+            # 1. Setup LLM (Llama 3 Local)
+            Settings.llm = Ollama(
+                model=MODEL_NAME, 
+                base_url=OLLAMA_URL, 
+                request_timeout=360.0 
+            )
+            
+            # 2. Setup Embeddings
+            Settings.embed_model = HuggingFaceEmbedding(
+                model_name="BAAI/bge-small-en-v1.5"
+            )
+            
+            # 3. Connection Check - Qdrant
+            try:
+                self.client = QdrantClient(url=QDRANT_URL)
+                # Test connection by listing collections
+                self.client.get_collections()
+                logger.info("✅ Qdrant Connection: ACTIVE")
+            except Exception as e:
+                logger.error(f"❌ Qdrant Connection FAILED: {e}")
+                logger.error("👉 Please ensure Docker is running: 'docker run -p 6333:6333 qdrant/qdrant'")
+                raise e
+
+            # 4. Storage Context
+            self.vector_store = QdrantVectorStore(
+                client=self.client, 
+                collection_name=COLLECTION_NAME
+            )
+            self.storage_context = StorageContext.from_defaults(
+                vector_store=self.vector_store
+            )
+            
+            # 5. Load Index
+            try:
+                self.index = VectorStoreIndex.from_vector_store(
+                    self.vector_store,
+                )
+                logger.info("✅ Vector Index Loaded.")
+            except Exception:
+                logger.info("⚠️ Index empty. Waiting for documents.")
+                
+            self.active = True
+            logger.info("🚀 BRAIN ONLINE.")
+
         except Exception as e:
-            logger.error(f"❌ Error en cerebro: {e}")
-            raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
-    else:
-        return {
-            "response": f"[SIMULACIÓN] Backend conectado. Llama 3 no respondió, pero la API sí. Mensaje: '{request.message}'",
-            "sources": ["System Check"]
-        }
+            logger.error(f"❌ CRITICAL BRAIN FAILURE: {e}")
+            self.active = False
 
-@app.post("/api/upload")
-async def upload_endpoint(file: UploadFile = File(...)):
-    """Procesa subida de documentos."""
-    logger.info(f"📂 Recibiendo archivo: {file.filename}")
-    
-    try:
-        file_path = os.path.join(UPLOAD_DIR, file.filename)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+    def ingest_document(self, file_path: str):
+        if not self.active: return False
+        logger.info(f"📥 Ingesting: {file_path}")
+        
+        try:
+            documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
             
-        if BRAIN_ACTIVE:
-            success = brain.ingest_document(file_path)
-            if success:
-                return {"status": "success", "filename": file.filename, "message": "Indexado en Qdrant"}
+            if self.index is None:
+                self.index = VectorStoreIndex.from_documents(
+                    documents, 
+                    storage_context=self.storage_context
+                )
             else:
-                raise HTTPException(status_code=500, detail="Fallo al indexar")
-        else:
-            return {"status": "success", "filename": file.filename, "note": "Modo simulación (archivo guardado)"}
+                for doc in documents:
+                    self.index.insert(doc)
             
-    except Exception as e:
-        logger.error(f"❌ Error upload: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+            logger.info(f"✅ Indexed {len(documents)} fragments.")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Ingestion Error: {e}")
+            return False
 
-if __name__ == "__main__":
-    print("🚀 ABUNDA Server Iniciando en PUERTO 8000...")
-    print("👉 Asegúrate que tu Ngrok apunte a 8000: ngrok http 8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    def query(self, question: str):
+        if not self.active: 
+            return "System Error: Brain is offline. Check server logs."
+        
+        logger.info(f"🧠 Thinking: {question}")
+        
+        if self.index is None:
+            return "Knowledge Base is empty. Please upload a document first."
+            
+        try:
+            query_engine = self.index.as_query_engine(
+                similarity_top_k=3, 
+            )
+            response = query_engine.query(question)
+            return str(response)
+        except Exception as e:
+            logger.error(f"Query Error: {e}")
+            return "I encountered an error processing your request. Please check if Ollama is running."
+
+brain = AbundaBrain()
