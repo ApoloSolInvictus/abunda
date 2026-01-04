@@ -49,8 +49,9 @@
         const { useState, useEffect, useRef } = React;
         
         // =================================================================================
-        // ⚡ CONFIGURACIÓN MAESTRA (NGROK TUNNEL) ⚡
+        // ⚡ CONFIGURACIÓN MAESTRA (DOMINIO DEDICADO) ⚡
         // =================================================================================
+        // Conexión directa a tu dominio de Backend
         const API_BASE_URL = "https://abunda.profcr.com"; 
         // =================================================================================
 
@@ -71,7 +72,7 @@
                             {/* Status Indicator */}
                             <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
                                 <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting to Ngrok...'}
+                                {status === 'Online' ? 'Brain Connected' : 'Connecting to Core...'}
                             </div>
                             <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
                                 Client Portal
@@ -189,14 +190,14 @@
                 setIsProcessing(true);
 
                 try {
-                    // Call Python Backend via Ngrok with BYPASS HEADER
+                    // Normalize URL and append endpoint
                     const cleanUrl = API_BASE_URL.replace(/\/$/, "");
                     
                     const response = await fetch(`${cleanUrl}/api/chat`, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true' // BYPASS WARNING
+                            'ngrok-skip-browser-warning': 'true' // BYPASS WARNING for Ngrok tunnels
                         },
                         body: JSON.stringify({ message: userMsg.content })
                     });
@@ -218,7 +219,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port (must be 8000).`,
+                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Ensure the backend is running.`,
                         isError: true 
                     }]);
                 } finally {
@@ -260,7 +261,7 @@
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
