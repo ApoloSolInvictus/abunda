@@ -1,4 +1,4 @@
-import loggingimport logging
+import loggingimport loggingimport logging
 import sys
 from llama_index.core import (
     VectorStoreIndex,
@@ -11,50 +11,52 @@ from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from qdrant_client import QdrantClient
 
-# Configuración de Logs
+# --- CONFIGURATION & LOGGING ---
+# Set logging to display in the terminal
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger("ABUNDA_BRAIN")
 
-# --- AJUSTE DE RED (IPs Explícitas) ---
-# Usamos 127.0.0.1 para máxima compatibilidad local
+# Network Configuration (Explicit IPs for stability)
+# Ensure Qdrant is running: docker run -p 6333:6333 qdrant/qdrant
 QDRANT_URL = "http://127.0.0.1:6333" 
 COLLECTION_NAME = "abunda_knowledge"
 
-# Ollama en puerto 11434
+# Ensure Ollama is running: ollama serve
 OLLAMA_URL = "http://127.0.0.1:11434"
 MODEL_NAME = "llama3"
 
 class AbundaBrain:
     def __init__(self):
-        logger.info(f"⚡ Inicializando ABUNDA Brain con {MODEL_NAME}...")
+        logger.info(f"⚡ Initializing ABUNDA Brain with {MODEL_NAME}...")
         self.active = False
         self.index = None
         
         try:
-            # 1. Configurar LLM (Llama 3)
+            # 1. Setup LLM (Llama 3 Local via Ollama)
             Settings.llm = Ollama(
                 model=MODEL_NAME, 
                 base_url=OLLAMA_URL, 
-                request_timeout=300.0 
+                request_timeout=360.0 # Extended timeout for local CPU processing
             )
             
-            # 2. Configurar Embeddings
+            # 2. Setup Embeddings (Local & Fast Model)
+            # Using BAAI/bge-small-en-v1.5 standard for efficiency
             Settings.embed_model = HuggingFaceEmbedding(
                 model_name="BAAI/bge-small-en-v1.5"
             )
             
-            # 3. Conexión a Qdrant
+            # 3. Connect to Vector Memory (Qdrant)
             try:
                 self.client = QdrantClient(url=QDRANT_URL)
-                # Test de conexión simple
+                # Simple connection test
                 self.client.get_collections()
-                logger.info("✅ Conexión a Qdrant: EXITOSA")
+                logger.info("✅ Connection to Qdrant: SUCCESS")
             except Exception as e:
-                logger.error(f"❌ Fallo al conectar Qdrant en {QDRANT_URL}. Asegúrate de que Docker esté corriendo.")
-                # No lanzamos error fatal para que la API pueda iniciar en modo 'Offline'
+                logger.error(f"❌ Failed to connect to Qdrant at {QDRANT_URL}. Ensure Docker container is running.")
+                # We return here to allow the API to start in 'Offline Mode' instead of crashing
                 return
 
-            # 4. Contexto de Almacenamiento
+            # 4. Storage Context Setup
             self.vector_store = QdrantVectorStore(
                 client=self.client, 
                 collection_name=COLLECTION_NAME
@@ -63,67 +65,72 @@ class AbundaBrain:
                 vector_store=self.vector_store
             )
             
-            # 5. Cargar Índice
+            # 5. Load Index
             try:
                 self.index = VectorStoreIndex.from_vector_store(
                     self.vector_store,
                 )
-                logger.info("✅ Memoria Vectorial Cargada.")
+                logger.info("✅ Vector Memory Loaded.")
             except Exception:
-                logger.info("⚠️ Memoria vacía. El sistema está listo para aprender (Sube un documento).")
+                logger.info("⚠️ Memory is empty. System ready to learn (Upload a document).")
                 self.index = None
                 
             self.active = True
-            logger.info("🚀 CEREBRO EN LÍNEA.")
+            logger.info("🚀 BRAIN ONLINE.")
 
         except Exception as e:
-            logger.error(f"❌ Error General del Cerebro: {e}")
+            logger.error(f"❌ Critical Brain Failure: {e}")
             self.active = False
 
     def ingest_document(self, file_path: str):
+        """Reads a document, chunks it, and saves vectors to Qdrant."""
         if not self.active: 
-            logger.error("Intento de ingesta con cerebro inactivo.")
+            logger.error("Attempted ingestion with inactive brain.")
             return False
             
-        logger.info(f"📥 Aprendiendo documento: {file_path}")
+        logger.info(f"📥 Learning document: {file_path}")
         
         try:
+            # LlamaIndex automatically detects file type (PDF, TXT, DOCX)
             documents = SimpleDirectoryReader(input_files=[file_path]).load_data()
             
             if self.index is None:
+                # Create new index if none exists
                 self.index = VectorStoreIndex.from_documents(
                     documents, 
                     storage_context=self.storage_context
                 )
             else:
+                # Insert into existing index
                 for doc in documents:
                     self.index.insert(doc)
             
-            logger.info(f"✅ Documento procesado ({len(documents)} páginas/fragmentos).")
+            logger.info(f"✅ Document processed ({len(documents)} fragments).")
             return True
         except Exception as e:
-            logger.error(f"❌ Error de Ingesta: {e}")
+            logger.error(f"❌ Ingestion Error: {e}")
             return False
 
     def query(self, question: str):
+        """Queries the vector database using Llama 3."""
         if not self.active: 
-            return "Error: El cerebro está desconectado. Verifica que Docker (Qdrant) y Ollama estén corriendo."
+            return "Error: Brain is disconnected. Please check Docker (Qdrant) and Ollama."
         
-        logger.info(f"🧠 Analizando: {question}")
+        logger.info(f"🧠 Analyzing: {question}")
         
         if self.index is None:
-            return "No tengo conocimiento almacenado aún. Por favor sube un documento PDF o TXT primero."
+            return "I have no knowledge stored yet. Please upload a document to the Knowledge Base first."
             
         try:
-            # Configurar motor de chat
+            # Configure chat engine
             query_engine = self.index.as_query_engine(
-                similarity_top_k=3, # Usar las 3 mejores referencias
+                similarity_top_k=3, # Retrieve top 3 most relevant context chunks
             )
             response = query_engine.query(question)
             return str(response)
         except Exception as e:
-            logger.error(f"Error en consulta: {e}")
-            return f"Ocurrió un error al generar la respuesta: {str(e)}"
+            logger.error(f"Query Error: {e}")
+            return f"An error occurred while generating the response: {str(e)}"
 
-# Instancia Global
+# Global Instance
 brain = AbundaBrain()
