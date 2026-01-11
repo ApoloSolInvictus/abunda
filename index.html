@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABUNDA v2 | Enterprise Knowledge OS</title>
+    <title>ABUNDA v2 | Sistema Operativo de Conocimiento</title>
     
     <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 2. Phosphor Icons (Stable) -->
+    <!-- 2. Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <!-- 3. React Core -->
@@ -25,11 +25,10 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
         
-        /* Animations */
-        .fade-in { animation: fadeIn 0.6s ease-in; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .slide-up { animation: slideUp 0.5s ease-out; }
+        .slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* Custom Scrollbar */
@@ -38,7 +37,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Icon adjustment */
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -49,33 +47,45 @@
         const { useState, useEffect, useRef } = React;
         
         // =================================================================================
-        // ⚡ CONFIGURACIÓN DE ENLACE NEURAL ⚡
+        // ⚡ CONFIGURACIÓN DE CONEXIÓN (CAMBIAR ESTO) ⚡
         // =================================================================================
-        // Apunta al túnel Ngrok que conecta con tu PC local
-        const API_BASE_URL = "https://abunda.profcr.com"; 
+        // Si usas Ngrok, pon tu URL aquí (ej: "https://xxxx.ngrok-free.app")
+        // Si usas AWS directo IP, pon la IP (ej: "http://54.12.34.56:8000")
+        const DEFAULT_API_URL = "http://TU_IP_DE_AWS_AQUI:8000"; 
         // =================================================================================
 
         // --- COMPONENTS ---
 
-        // 1. LANDING PAGE VIEW
-        const LandingView = ({ onLogin, status }) => {
+        // 1. LANDING PAGE
+        const LandingView = ({ onLogin, status, apiUrl, setApiUrl }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
                             </div>
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
-                        <div className="flex items-center gap-4">
+                        
+                        <div className="flex items-center gap-4 bg-slate-800/50 p-2 rounded-xl border border-slate-700">
                             {/* Status Indicator */}
-                            <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
-                                <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Brain Connected' : 'Connecting...'}
+                            <div className="flex items-center px-3">
+                                <span className={`w-2 h-2 rounded-full mr-2 ${status === 'Online' ? 'bg-green-400' : 'bg-red-500 animate-pulse'}`}></span>
+                                <span className="text-xs font-mono text-slate-300">{status === 'Online' ? 'Motor Activo' : 'Conectando...'}</span>
                             </div>
-                            <button onClick={onLogin} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
-                                Client Portal
+                            
+                            {/* API Override (Oculto en móvil, útil para debug) */}
+                            <input 
+                                type="text" 
+                                value={apiUrl} 
+                                onChange={(e) => setApiUrl(e.target.value)}
+                                className="hidden md:block bg-transparent text-[10px] text-slate-500 focus:text-white focus:outline-none w-48 font-mono border-l border-slate-600 pl-3"
+                                placeholder="API URL"
+                            />
+                            
+                            <button onClick={onLogin} className="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-500 transition text-xs shadow-lg">
+                                Entrar al Portal
                             </button>
                         </div>
                     </nav>
@@ -83,22 +93,28 @@
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
                             <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                            Enterprise AI v2.0
+                            Motor Llama 3.2 (1B) Optimizado
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
-                            Your Company's Data.<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Abunda gives it a Voice.</span>
+                            Tus Datos Corporativos.<br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Inteligentes y Privados.</span>
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12 font-light">
-                            Private Artificial Intelligence Platform.
-                            <br/>Secure RAG. Cloud Vectorization. Zero Hallucinations.
+                            Plataforma de Inteligencia Artificial Empresarial.
+                            <br/>RAG Seguro. Vectorización en la Nube. Cero Alucinaciones.
                         </p>
                         
                         <div className="flex gap-4">
                             <button onClick={onLogin} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-2xl shadow-blue-900/50 transition transform hover:-translate-y-1 flex items-center gap-3">
-                                <i className="ph ph-rocket-launch text-xl"></i> Launch Workspace
+                                <i className="ph ph-rocket-launch text-xl"></i> Iniciar Workspace
                             </button>
                         </div>
+                        
+                        {status !== 'Online' && (
+                            <p className="mt-8 text-xs text-red-400 bg-red-900/20 px-4 py-2 rounded border border-red-900/50">
+                                ⚠️ No se detecta el cerebro en {apiUrl}. Verifica que 'python main.py' esté corriendo en Ubuntu.
+                            </p>
+                        )}
                     </header>
 
                     <div className="py-10 border-t border-slate-800 w-full text-center">
@@ -109,7 +125,7 @@
         };
 
         // 2. APP LAYOUT
-        const AppLayout = ({ children, activeTab, setActiveTab, onLogout }) => {
+        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, apiUrl, status }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
                     {/* Sidebar */}
@@ -125,26 +141,25 @@
                         </div>
                         
                         <nav className="flex-1 p-4 space-y-1">
-                            <SidebarItem icon="ph-chat-circle-text" label="RAG Chat" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
-                            <SidebarItem icon="ph-upload-simple" label="Knowledge Base" active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')} />
+                            <SidebarItem icon="ph-chat-circle-text" label="Chat RAG" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
+                            <SidebarItem icon="ph-upload-simple" label="Base de Conocimiento" active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')} />
                             <div className="my-4 pt-4 border-t border-slate-800">
                                 <p className="px-4 text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-2">Admin</p>
-                                <SidebarItem icon="ph-users" label="Users & Roles" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
-                                <SidebarItem icon="ph-gear" label="AI Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
-                                <SidebarItem icon="ph-activity" label="System Logs" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
+                                <SidebarItem icon="ph-users" label="Usuarios" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
+                                <SidebarItem icon="ph-gear" label="Configuración IA" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
                             </div>
                         </nav>
 
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
                             <div className="mb-4 px-2">
-                                <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
+                                <div className="text-[10px] text-slate-500 font-mono mb-1">Conexión Servidor</div>
+                                <div className="text-[10px] text-green-400 font-mono truncate" title={apiUrl}>{status === 'Online' ? 'Conectado' : 'Desconectado'}</div>
                             </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">A</div>
                                 <div className="text-left">
                                     <p className="font-bold text-xs text-white">Apollo Admin</p>
-                                    <p className="text-[10px]">Logout</p>
+                                    <p className="text-[10px]">Cerrar Sesión</p>
                                 </div>
                             </button>
                         </div>
@@ -169,9 +184,9 @@
         );
 
         // 3. CHAT INTERFACE
-        const ChatInterface = () => {
+        const ChatInterface = ({ apiUrl }) => {
             const [messages, setMessages] = useState([
-                { id: 1, role: 'ai', content: 'Secure Link Established. I am ready to process your queries using the cloud brain.', sources: [] }
+                { id: 1, role: 'ai', content: 'Enlace Seguro Establecido. Estoy listo para procesar tus consultas usando el cerebro en la nube.', sources: [] }
             ]);
             const [input, setInput] = useState('');
             const [isProcessing, setIsProcessing] = useState(false);
@@ -190,19 +205,19 @@
                 setIsProcessing(true);
 
                 try {
-                    // Call Python Backend via Ngrok with BYPASS HEADER
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    // Normalize URL and append endpoint
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
                     
                     const response = await fetch(`${cleanUrl}/api/chat`, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true' // BYPASS WARNING
+                            'ngrok-skip-browser-warning': 'true' // Vital para Ngrok
                         },
                         body: JSON.stringify({ message: userMsg.content })
                     });
 
-                    if (!response.ok) throw new Error("Backend unavailable");
+                    if (!response.ok) throw new Error("Backend no disponible");
 
                     const data = await response.json();
 
@@ -219,7 +234,7 @@
                     setMessages(prev => [...prev, { 
                         id: Date.now() + 1, 
                         role: 'ai', 
-                        content: `⚠️ Error: Cannot reach cloud brain at ${API_BASE_URL}. Check your Ngrok tunnel port (must be 8000).`,
+                        content: `⚠️ Error: No puedo contactar al cerebro en ${apiUrl}. Verifica que el túnel o la IP sean correctos.`,
                         isError: true 
                     }]);
                 } finally {
@@ -235,8 +250,8 @@
                                 <i className="ph ph-brain text-lg"></i>
                             </div>
                             <div>
-                                <h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2>
-                                <p className="text-[10px] text-slate-500">Connected to Cloud Llama 3</p>
+                                <h2 className="font-bold text-slate-800 text-sm">Asistente de Operaciones</h2>
+                                <p className="text-[10px] text-slate-500">Conectado a Llama 3.2 (Nube)</p>
                             </div>
                         </div>
                         <div className="text-xs bg-slate-100 px-3 py-1 rounded border border-slate-200 text-slate-600 font-mono flex items-center gap-2">
@@ -250,18 +265,18 @@
                                 <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white border-slate-900 rounded-br-sm' : 'bg-white text-slate-700 border-slate-200 rounded-bl-sm'} ${msg.isError ? 'border-red-500 bg-red-50 text-red-600' : ''}`}>
                                     <div className="flex items-center gap-2 mb-2 opacity-50 text-xs uppercase tracking-wider font-bold">
                                         {msg.role === 'user' ? <i className="ph ph-user"></i> : <i className="ph ph-lightning"></i>}
-                                        {msg.role === 'user' ? 'User' : 'Abunda AI'}
+                                        {msg.role === 'user' ? 'Usuario' : 'Abunda AI'}
                                     </div>
                                     <p className="leading-relaxed text-sm whitespace-pre-wrap">{msg.content}</p>
                                     
                                     {msg.sources && msg.sources.length > 0 && (
                                         <div className="mt-4 pt-3 border-t border-slate-100/10">
                                             <p className="text-[10px] font-bold opacity-60 mb-2 uppercase flex items-center gap-1">
-                                                <i className="ph ph-database"></i> Source Context
+                                                <i className="ph ph-database"></i> Contexto Fuente
                                             </p>
                                             <div className="flex flex-wrap gap-2">
                                                 {msg.sources.map((src, idx) => (
-                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600'}`}>
+                                                    <span key={idx} className={`text-[10px] px-2 py-1 rounded border flex items-center gap-1 cursor-pointer transition ${msg.role === 'user' ? 'bg-slate-800 border-slate-700 hover:bg-slate-700' : 'bg-slate-50 border-slate-200 text-blue-600 hover:bg-blue-50'}`}>
                                                         <i className="ph ph-file-text"></i> {src}
                                                     </span>
                                                 ))}
@@ -276,7 +291,7 @@
                             <div className="flex justify-start w-full animate-pulse">
                                 <div className="bg-white border border-blue-200 text-blue-800 rounded-2xl rounded-bl-none p-3 shadow-sm flex items-center gap-3 text-xs font-mono">
                                     <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                                    Thinking & Retrieving...
+                                    Pensando & Recuperando...
                                 </div>
                             </div>
                         )}
@@ -288,7 +303,7 @@
                             <input 
                                 type="text" 
                                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition shadow-inner text-sm text-slate-800 placeholder:text-slate-400"
-                                placeholder="Query your documents..."
+                                placeholder="Consulta tus documentos..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -302,7 +317,7 @@
                             </button>
                         </div>
                         <p className="text-center text-[10px] text-slate-400 mt-2 flex items-center justify-center gap-1">
-                            <i className="ph ph-lock-key"></i> Encrypted Channel • {API_BASE_URL}
+                            <i className="ph ph-lock-key"></i> Canal Encriptado • Procesamiento Privado
                         </p>
                     </div>
                 </div>
@@ -310,7 +325,7 @@
         };
 
         // 4. KNOWLEDGE BASE
-        const KnowledgeBase = () => {
+        const KnowledgeBase = ({ apiUrl }) => {
             const [uploading, setUploading] = useState(false);
             const [status, setStatus] = useState("");
             const [files, setFiles] = useState([]);
@@ -321,13 +336,13 @@
                 if (!file) return;
 
                 setUploading(true);
-                setStatus("Uploading & Vectorizing...");
+                setStatus("Subiendo & Vectorizando...");
 
                 const formData = new FormData();
                 formData.append("file", file);
 
                 try {
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
                     const res = await fetch(`${cleanUrl}/api/upload`, {
                         method: 'POST',
                         headers: {
@@ -338,12 +353,12 @@
                     
                     if (!res.ok) {
                         const err = await res.json();
-                        throw new Error(err.detail || "Upload failed");
+                        throw new Error(err.detail || "Error en subida");
                     }
                     
                     const data = await res.json();
                     
-                    setStatus("✅ Success: Document indexed.");
+                    setStatus("✅ Éxito: Documento indexado.");
                     setFiles(prev => [...prev, {
                         id: Date.now(),
                         name: data.filename,
@@ -354,7 +369,7 @@
 
                 } catch (error) {
                     console.error(error);
-                    setStatus(`❌ Error: Backend offline or network issue.`);
+                    setStatus(`❌ Error: Backend offline o problema de red.`);
                 } finally {
                     setUploading(false);
                 }
@@ -364,11 +379,11 @@
                 <div className="p-8 max-w-5xl mx-auto fade-in slide-up h-full overflow-y-auto">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h2 className="text-2xl font-bold text-slate-800 font-display">Knowledge Base</h2>
-                            <p className="text-sm text-slate-500">Manage documents feeding the Llama 3 engine.</p>
+                            <h2 className="text-2xl font-bold text-slate-800 font-display">Base de Conocimiento</h2>
+                            <p className="text-sm text-slate-500">Gestiona los documentos que alimentan el motor Llama 3.</p>
                         </div>
                         <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 flex items-center gap-2 shadow-lg shadow-slate-900/20">
-                            <i className="ph ph-arrows-clockwise text-lg"></i> Refresh Status
+                            <i className="ph ph-arrows-clockwise text-lg"></i> Actualizar Estado
                         </button>
                     </div>
                     
@@ -385,35 +400,35 @@
                                 <i className="ph ph-upload-simple text-2xl text-slate-600 group-hover:text-blue-500"></i>
                             )}
                         </div>
-                        <h3 className="font-bold text-slate-700 text-base">{uploading ? 'Processing...' : 'Click to Upload Document'}</h3>
-                        <p className="text-slate-400 text-xs mt-1">PDF, DOCX, TXT supported</p>
+                        <h3 className="font-bold text-slate-700 text-base">{uploading ? 'Procesando...' : 'Clic para Subir Documento'}</h3>
+                        <p className="text-slate-400 text-xs mt-1">Soporta PDF, DOCX, TXT</p>
                     </div>
 
                     {status && (
-                        <div className={`p-3 mb-6 rounded-lg text-sm font-bold text-center ${status.includes('Success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        <div className={`p-3 mb-6 rounded-lg text-sm font-bold text-center ${status.includes('Éxito') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                             {status}
                         </div>
                     )}
 
                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-                            <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Indexed Files</h3>
+                            <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Archivos Indexados</h3>
                             <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200 font-mono">Total: {files.length}</span>
                         </div>
                         <table className="w-full text-sm text-left">
                             <thead className="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
                                 <tr>
-                                    <th className="px-6 py-3 font-medium">Filename</th>
-                                    <th className="px-6 py-3 font-medium">Size</th>
-                                    <th className="px-6 py-3 font-medium">Status</th>
-                                    <th className="px-6 py-3 font-medium">Date</th>
-                                    <th className="px-6 py-3 font-medium text-right">Actions</th>
+                                    <th className="px-6 py-3 font-medium">Nombre</th>
+                                    <th className="px-6 py-3 font-medium">Tamaño</th>
+                                    <th className="px-6 py-3 font-medium">Estado</th>
+                                    <th className="px-6 py-3 font-medium">Fecha</th>
+                                    <th className="px-6 py-3 font-medium text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {files.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-8 text-center text-slate-400 italic">No documents uploaded yet.</td>
+                                        <td colSpan="5" className="px-6 py-8 text-center text-slate-400 italic">No hay documentos cargados aún.</td>
                                     </tr>
                                 ) : (
                                     files.map((file) => (
@@ -427,7 +442,7 @@
                                             <td className="px-6 py-4 text-slate-500 font-mono text-xs">{file.size}</td>
                                             <td className="px-6 py-4">
                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Indexed
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Indexado
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-400 text-xs">{file.date}</td>
@@ -452,10 +467,10 @@
                 <div className="bg-slate-100 p-6 rounded-full mb-4">
                     <i className="ph ph-users text-4xl text-slate-300"></i>
                 </div>
-                <h3 className="text-lg font-bold text-slate-700 mb-2">User Module (Epic 6.2)</h3>
+                <h3 className="text-lg font-bold text-slate-700 mb-2">Módulo de Usuarios (Épica 6.2)</h3>
                 <p className="text-center max-w-md text-sm">
-                    Role management (Admin, Editor, Viewer).
-                    <br/><span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded mt-2 inline-block">Pending Implementation</span>
+                    Gestión de roles (Admin, Editor, Viewer).
+                    <br/><span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded mt-2 inline-block">Pendiente de Implementación</span>
                 </p>
             </div>
         );
@@ -465,9 +480,9 @@
                 <div className="bg-slate-100 p-6 rounded-full mb-4">
                     <i className="ph ph-gear text-4xl text-slate-300"></i>
                 </div>
-                <h3 className="text-lg font-bold text-slate-700 mb-2">LLM Configuration (Epic 6.3)</h3>
+                <h3 className="text-lg font-bold text-slate-700 mb-2">Configuración LLM (Épica 6.3)</h3>
                 <p className="text-center max-w-md text-sm">
-                    Temperature adjustment and Model selection.
+                    Ajuste de temperatura y selección de modelo.
                 </p>
             </div>
         );
@@ -476,12 +491,15 @@
         const AbundaApp = () => {
             const [view, setView] = useState('landing');
             const [activeTab, setActiveTab] = useState('chat');
+            // DEFAULT TO PROVIDED API URL, but allow change
+            const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
             const [status, setStatus] = useState("Checking...");
 
             useEffect(() => {
                 const check = async () => {
+                    if (!apiUrl) return;
                     try {
-                        const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                        const cleanUrl = apiUrl.replace(/\/$/, "");
                         const res = await fetch(`${cleanUrl}/`, {
                             headers: { 'ngrok-skip-browser-warning': 'true' }
                         });
@@ -494,16 +512,16 @@
                 check();
                 const interval = setInterval(check, 10000); 
                 return () => clearInterval(interval);
-            }, []);
+            }, [apiUrl]);
 
             if (view === 'landing') {
-                return <LandingView onLogin={() => setView('app')} status={status} />;
+                return <LandingView onLogin={() => setView('app')} status={status} apiUrl={apiUrl} setApiUrl={setApiUrl} />;
             }
 
             return (
-                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} status={status}>
-                    {activeTab === 'chat' && <ChatInterface />}
-                    {activeTab === 'knowledge' && <KnowledgeBase />}
+                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} apiUrl={apiUrl} status={status}>
+                    {activeTab === 'chat' && <ChatInterface apiUrl={apiUrl} />}
+                    {activeTab === 'knowledge' && <KnowledgeBase apiUrl={apiUrl} />}
                     {activeTab === 'users' && <UsersModule />}
                     {activeTab === 'settings' && <SettingsModule />}
                 </AppLayout>
