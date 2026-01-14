@@ -24,18 +24,14 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
-        
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         i.ph { font-size: 1.25rem; vertical-align: middle; }
     </style>
 </head>
@@ -45,8 +41,8 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // ⚡ CONFIGURACIÓN DE CONEXIÓN ⚡
-        const API_BASE_URL = "https://abunda.profcr.com"; 
+        // Default URL (Editable in UI)
+        const DEFAULT_API_URL = "https://abunda.profcr.com"; 
 
         // --- COMPONENTS ---
 
@@ -55,28 +51,35 @@
             const [user, setUser] = useState("");
             const [pass, setPass] = useState("");
             const [error, setError] = useState("");
+            const [loading, setLoading] = useState(false);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
-                // Simulación de Auth para el Frontend (En producción esto llamaría a /api/login)
-                if (user === "admin" && pass === "admin123") {
-                    onLoginSuccess({ name: "Apollo Admin", role: "Super Admin" });
-                } else {
-                    setError("Invalid credentials. Try: admin / admin123");
-                }
+                setLoading(true);
+                
+                // Simulación de autenticación segura
+                // En un entorno real, esto enviaría una petición POST al backend
+                setTimeout(() => {
+                    if (user === "admin" && pass === "admin123") {
+                        onLoginSuccess({ name: "Apollo Admin", role: "Super Admin" });
+                    } else {
+                        setError("Access Denied. Invalid credentials.");
+                        setLoading(false);
+                    }
+                }, 800);
             };
 
             return (
                 <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center p-4 fade-in">
-                    <div className="bg-slate-800 border border-slate-700 p-8 rounded-2xl shadow-2xl w-full max-w-md relative">
+                    <div className="bg-slate-800 border border-slate-700 p-8 rounded-2xl shadow-2xl w-full max-w-sm relative">
                         <button onClick={onCancel} className="absolute top-4 right-4 text-slate-500 hover:text-white"><i className="ph ph-x"></i></button>
                         
                         <div className="text-center mb-8">
                             <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
                                 <i className="ph ph-lock-key text-3xl text-white"></i>
                             </div>
-                            <h2 className="text-2xl font-display font-bold text-white">Secure Login</h2>
-                            <p className="text-slate-400 text-sm">Access the Neural Core</p>
+                            <h2 className="text-2xl font-display font-bold text-white">System Login</h2>
+                            <p className="text-slate-400 text-sm">Identity Verification Required</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,21 +87,21 @@
                                 <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Username</label>
                                 <div className="relative">
                                     <i className="ph ph-user absolute left-3 top-3 text-slate-500"></i>
-                                    <input type="text" value={user} onChange={e=>setUser(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="Username" />
+                                    <input type="text" value={user} onChange={e=>setUser(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition text-sm" placeholder="admin" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Password</label>
                                 <div className="relative">
                                     <i className="ph ph-key absolute left-3 top-3 text-slate-500"></i>
-                                    <input type="password" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="••••••" />
+                                    <input type="password" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition text-sm" placeholder="••••••" />
                                 </div>
                             </div>
                             
-                            {error && <div className="text-red-400 text-xs text-center bg-red-900/20 p-2 rounded border border-red-900/50">{error}</div>}
+                            {error && <div className="text-red-400 text-xs text-center bg-red-900/20 p-2 rounded border border-red-900/50 flex items-center justify-center gap-2"><i className="ph ph-warning"></i> {error}</div>}
 
-                            <button type="submit" className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2">
-                                Authenticate <i className="ph ph-arrow-right"></i>
+                            <button type="submit" disabled={loading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50">
+                                {loading ? 'Verifying...' : <span>Access Core <i className="ph ph-arrow-right"></i></span>}
                             </button>
                         </form>
                     </div>
@@ -107,31 +110,40 @@
         };
 
         // 2. LANDING PAGE
-        const LandingView = ({ onLoginClick, status }) => {
+        const LandingView = ({ onLoginClick, status, apiUrl, setApiUrl }) => {
             return (
                 <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full gap-4">
+                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
                                 <i className="ph ph-stack text-xl text-white"></i>
                             </div>
                             <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className={`flex items-center gap-2 text-xs font-mono px-3 py-1 rounded-full border ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
-                                <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></span>
-                                {status === 'Online' ? 'Cloud Link Active' : 'Connecting...'}
+                        
+                        <div className="flex items-center gap-3 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700 shadow-lg">
+                            {/* Server Configuration Input */}
+                            <div className="flex items-center px-3 border-r border-slate-700">
+                                <span className={`w-2 h-2 rounded-full mr-2 ${status === 'Online' ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-red-500 animate-pulse'}`}></span>
+                                <input 
+                                    type="text" 
+                                    value={apiUrl}
+                                    onChange={(e) => setApiUrl(e.target.value)}
+                                    className="bg-transparent text-xs text-slate-300 focus:text-white focus:outline-none w-48 md:w-64 font-mono placeholder-slate-600"
+                                    placeholder="Server URL (Ngrok)"
+                                />
                             </div>
-                            <button onClick={onLoginClick} className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-blue-50 transition text-sm shadow-lg shadow-white/10">
-                                Client Portal
+                            
+                            <button onClick={onLoginClick} className="px-6 py-2 bg-white text-slate-900 rounded-lg font-bold hover:bg-blue-50 transition text-xs uppercase tracking-wider">
+                                Login
                             </button>
                         </div>
                     </nav>
 
                     <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                            Enterprise AI v2.0
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold mb-8 uppercase tracking-widest ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
+                            <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                            {status === 'Online' ? 'Neural Link Established' : 'Connecting to Server...'}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
                             Your Company's Data.<br />
@@ -157,7 +169,7 @@
         };
 
         // 3. APP LAYOUT
-        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, currentUser }) => {
+        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, currentUser, apiUrl }) => {
             return (
                 <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
                     <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
@@ -184,8 +196,8 @@
 
                         <div className="p-4 border-t border-slate-800 bg-slate-950/50">
                             <div className="mb-4 px-2">
-                                <div className="text-[10px] text-slate-500 font-mono mb-1">Server Connection</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate">{API_BASE_URL}</div>
+                                <div className="text-[10px] text-slate-500 font-mono mb-1">Connected to:</div>
+                                <div className="text-[10px] text-green-400 font-mono truncate" title={apiUrl}>{apiUrl}</div>
                             </div>
                             <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
                                 <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">
@@ -209,9 +221,8 @@
             <button onClick={onClick} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-sm font-medium ${active ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><i className={`ph ${icon} text-lg`}></i> {label}</button>
         );
 
-        // 4. USER MANAGEMENT MODULE (NEW)
+        // 4. USER MANAGEMENT (Create Users)
         const UserManagement = () => {
-            // Fake database for frontend demo
             const [users, setUsers] = useState([
                 { id: 1, name: "Apollo Invictus", email: "apollo@abunda.io", role: "Super Admin", status: "Active" },
                 { id: 2, name: "Sebastian Tech", email: "dev@abunda.io", role: "Editor", status: "Active" }
@@ -313,10 +324,8 @@
             );
         };
 
-        // ... [ChatInterface and KnowledgeBase components remain the same as V3.3] ...
-        // Re-inserting them for completeness
-
-        const ChatInterface = () => {
+        // ... [ChatInterface and KnowledgeBase] ...
+        const ChatInterface = ({ apiUrl }) => {
             const [messages, setMessages] = useState([{ id: 1, role: 'ai', content: 'Secure Link Established. I am ready to process your queries using the cloud brain.', sources: [] }]);
             const [input, setInput] = useState('');
             const [loading, setLoading] = useState(false);
@@ -324,30 +333,26 @@
             useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
 
             const handleSend = async () => {
-                if (!input.trim()) return;
+                if(!input.trim()) return;
                 const userMsg = { id: Date.now(), role: 'user', content: input };
                 setMessages(prev => [...prev, userMsg]);
                 setInput('');
                 setLoading(true);
                 try {
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
-                    const response = await fetch(`${cleanUrl}/api/chat`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                        body: JSON.stringify({ message: userMsg.content })
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
+                    const res = await fetch(`${cleanUrl}/api/chat`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' }, body: JSON.stringify({ message: userMsg.content })
                     });
-                    if (!response.ok) throw new Error("Backend unavailable");
-                    const data = await response.json();
+                    if (!res.ok) throw new Error("Backend unavailable");
+                    const data = await res.json();
                     setMessages(prev => [...prev, { id: Date.now()+1, role: 'ai', content: data.response, sources: data.sources || [] }]);
-                } catch (e) {
-                    setMessages(prev => [...prev, { id: Date.now()+1, role: 'ai', content: "⚠️ Connection Error", isError: true }]);
-                } finally { setLoading(false); }
+                } catch (e) { setMessages(prev => [...prev, { id: Date.now()+1, role: 'ai', content: `⚠️ Error: Cannot reach cloud brain at ${apiUrl}.`, isError: true }]); } finally { setLoading(false); }
             };
             return (
                 <div className="flex flex-col h-full slide-up">
                     <header className="h-14 bg-white border-b border-slate-200 flex items-center px-6 shadow-sm z-10"><div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-md text-green-700"><i className="ph ph-brain text-lg"></i></div><div><h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2><p className="text-[10px] text-slate-500">Connected to Cloud Llama 3</p></div></div></header>
                     <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50">
-                        {messages.map(msg => (<div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white rounded-br-sm' : 'bg-white text-slate-700 rounded-bl-sm'} ${msg.isError ? 'border-red-500 bg-red-50 text-red-600' : ''}`}><p className="leading-relaxed text-sm whitespace-pre-wrap">{msg.content}</p></div></div>))}
+                        {messages.map(msg => (<div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white rounded-br-sm' : 'bg-white text-slate-700 rounded-bl-sm'} ${msg.isError ? 'border-red-500 bg-red-50 text-red-600' : 'border-slate-200'}`}><p className="leading-relaxed text-sm whitespace-pre-wrap">{msg.content}</p></div></div>))}
                         {loading && <div className="text-xs text-slate-400 animate-pulse ml-2">Thinking...</div>}<div ref={endRef} />
                     </div>
                     <div className="p-4 bg-white border-t border-slate-200"><div className="max-w-4xl mx-auto relative group"><input className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" placeholder="Query your documents..." value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} /><button onClick={handleSend} className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50" disabled={loading}><i className="ph ph-paper-plane-right text-lg"></i></button></div></div>
@@ -355,12 +360,11 @@
             );
         };
 
-        const KnowledgeBase = () => {
+        const KnowledgeBase = ({ apiUrl }) => {
             const [uploading, setUploading] = useState(false);
             const [status, setStatus] = useState("");
             const [files, setFiles] = useState([]);
             const fileInputRef = useRef(null);
-
             const handleUpload = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -368,15 +372,14 @@
                 const formData = new FormData();
                 formData.append("file", file);
                 try {
-                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    const cleanUrl = apiUrl.replace(/\/$/, "");
                     const res = await fetch(`${cleanUrl}/api/upload`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
                     if (!res.ok) throw new Error("Upload failed");
                     const data = await res.json();
-                    setStatus("✅ Success");
+                    setStatus("✅ Indexed.");
                     setFiles(prev => [...prev, { id: Date.now(), name: data.filename, size: (file.size/1024).toFixed(1)+" KB", status: 'indexed', date: 'Just now' }]);
-                } catch (e) { setStatus("❌ Error"); } finally { setUploading(false); }
+                } catch (error) { setStatus("❌ Error"); } finally { setUploading(false); }
             };
-
             return (
                 <div className="p-8 max-w-5xl mx-auto fade-in slide-up h-full overflow-y-auto">
                     <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-bold text-slate-800 font-display">Knowledge Base</h2></div>
@@ -395,7 +398,7 @@
             <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 fade-in">
                 <div className="bg-slate-100 p-6 rounded-full mb-4"><i className="ph ph-gear text-4xl text-slate-300"></i></div>
                 <h3 className="text-lg font-bold text-slate-700 mb-2">LLM Configuration</h3>
-                <p className="text-center max-w-md text-sm">Temperature & Model selection.</p>
+                <p className="text-center max-w-md text-sm">Temperature adjustment and Model selection.</p>
             </div>
         );
 
@@ -403,6 +406,7 @@
         const AbundaApp = () => {
             const [view, setView] = useState('landing');
             const [activeTab, setActiveTab] = useState('chat');
+            const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
             const [status, setStatus] = useState("Checking...");
             const [currentUser, setCurrentUser] = useState(null);
             const [showLogin, setShowLogin] = useState(false);
@@ -410,14 +414,15 @@
             useEffect(() => {
                 const check = async () => {
                     try {
-                        const res = await fetch(`${API_BASE_URL}/`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+                        const cleanUrl = apiUrl.replace(/\/$/, "");
+                        const res = await fetch(`${cleanUrl}/`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
                         if (res.ok) setStatus("Online"); else setStatus("Error");
                     } catch { setStatus("Offline"); }
                 };
                 check();
                 const interval = setInterval(check, 10000); 
                 return () => clearInterval(interval);
-            }, []);
+            }, [apiUrl]);
 
             const handleLoginSuccess = (user) => {
                 setCurrentUser(user);
@@ -428,13 +433,12 @@
             return (
                 <React.Fragment>
                     {showLogin && <LoginScreen onCancel={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />}
-                    
                     {view === 'landing' ? (
-                        <LandingView onLogin={() => setShowLogin(true)} status={status} />
+                        <LandingView onLogin={() => setShowLogin(true)} status={status} apiUrl={apiUrl} setApiUrl={setApiUrl} />
                     ) : (
-                        <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} currentUser={currentUser}>
-                            {activeTab === 'chat' && <ChatInterface />}
-                            {activeTab === 'knowledge' && <KnowledgeBase />}
+                        <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} currentUser={currentUser} apiUrl={apiUrl}>
+                            {activeTab === 'chat' && <ChatInterface apiUrl={apiUrl} />}
+                            {activeTab === 'knowledge' && <KnowledgeBase apiUrl={apiUrl} />}
                             {activeTab === 'users' && <UserManagement />}
                             {activeTab === 'settings' && <SettingsModule />}
                         </AppLayout>
