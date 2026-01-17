@@ -71,16 +71,7 @@
                 e.preventDefault();
                 setLoading(true);
                 setError("");
-
-                // MODO SIMULACIÓN (Hasta que configures Firebase)
-                setTimeout(() => {
-                    if(email && password) {
-                         onLoginSuccess({ email: email, uid: "simulated-uid", name: "Soberano Apollo" });
-                    } else {
-                        setError("Por favor ingresa credenciales.");
-                        setLoading(false);
-                    }
-                }, 1000);
+                
 
                 /* CÓDIGO REAL PARA FIREBASE (Descomentar cuando esté listo):
                 try {
@@ -252,4 +243,5 @@
     </script>
 </body>
 </html>
+
 
