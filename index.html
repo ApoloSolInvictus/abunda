@@ -1,38 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABUNDA v2 | Enterprise Knowledge OS</title>
+    <title>ABUNDA AI | Enterprise OS</title>
     
-    <!-- 1. Tailwind CSS -->
+    <!-- 1. Estilos y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- 2. Phosphor Icons (Stable) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- 3. React Core -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- 4. Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
+    <!-- 2. React Core -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 3. Firebase SDK (Modular - Usaremos versión compat para simplicidad en HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         .font-display { font-family: 'Space Grotesk', sans-serif; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .slide-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        i.ph { font-size: 1.25rem; vertical-align: middle; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -40,415 +36,219 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-        
-        // Default URL (Editable in UI)
-        const DEFAULT_API_URL = "https://abunda.profcr.com"; 
 
-        // --- COMPONENTS ---
+        // --- CONFIGURACIÓN DEL SISTEMA ---
+        // 1. URL DE HEROKU (Aquí pondrás la URL que te dé Heroku al desplegar)
+        // Ejemplo: "https://abunda-backend-apollo.herokuapp.com"
+        const DEFAULT_BACKEND_URL = "http://127.0.0.1:8000"; 
 
-        // 1. LOGIN MODAL
-        const LoginScreen = ({ onLoginSuccess, onCancel }) => {
-            const [user, setUser] = useState("");
-            const [pass, setPass] = useState("");
-            const [error, setError] = useState("");
+        // 2. CONFIGURACIÓN FIREBASE (Soberano, reemplaza esto con tus credenciales de consola de Firebase)
+        const firebaseConfig = {
+            apiKey: "PON_TU_API_KEY_AQUI",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "NUMERO",
+            appId: "ID_APP"
+        };
+
+        // Inicializar Firebase (Solo si no está inicializado)
+        if (!firebase.apps.length) {
+            // Descomenta la línea de abajo cuando pongas tus credenciales reales
+            // firebase.initializeApp(firebaseConfig);
+            console.log("Firebase placeholder activo. Configura las credenciales en el código.");
+        }
+
+        // --- COMPONENTES ---
+
+        const LoginScreen = ({ onLoginSuccess }) => {
+            const [email, setEmail] = useState("");
+            const [password, setPassword] = useState("");
             const [loading, setLoading] = useState(false);
+            const [error, setError] = useState("");
 
-            const handleSubmit = (e) => {
+            const handleLogin = async (e) => {
                 e.preventDefault();
                 setLoading(true);
-                
-                // Simulación de autenticación segura
-                // En un entorno real, esto enviaría una petición POST al backend
+                setError("");
+
+                // MODO SIMULACIÓN (Hasta que configures Firebase)
                 setTimeout(() => {
-                    if (user === "admin" && pass === "admin123") {
-                        onLoginSuccess({ name: "Apollo Admin", role: "Super Admin" });
+                    if(email && password) {
+                         onLoginSuccess({ email: email, uid: "simulated-uid", name: "Soberano Apollo" });
                     } else {
-                        setError("Access Denied. Invalid credentials.");
+                        setError("Por favor ingresa credenciales.");
                         setLoading(false);
                     }
-                }, 800);
+                }, 1000);
+
+                /* CÓDIGO REAL PARA FIREBASE (Descomentar cuando esté listo):
+                try {
+                    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    onLoginSuccess(userCredential.user);
+                } catch (error) {
+                    setError(error.message);
+                    setLoading(false);
+                }
+                */
             };
 
             return (
-                <div className="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center p-4 fade-in">
-                    <div className="bg-slate-800 border border-slate-700 p-8 rounded-2xl shadow-2xl w-full max-w-sm relative">
-                        <button onClick={onCancel} className="absolute top-4 right-4 text-slate-500 hover:text-white"><i className="ph ph-x"></i></button>
-                        
+                <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 fade-in relative overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+                    <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700 relative z-10">
                         <div className="text-center mb-8">
-                            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
-                                <i className="ph ph-lock-key text-3xl text-white"></i>
+                            <div className="inline-block p-3 bg-blue-600 rounded-xl mb-4 shadow-lg shadow-blue-500/30">
+                                <i className="ph ph-stack text-3xl text-white"></i>
                             </div>
-                            <h2 className="text-2xl font-display font-bold text-white">System Login</h2>
-                            <p className="text-slate-400 text-sm">Identity Verification Required</p>
+                            <h1 className="text-3xl font-display font-bold text-white">ABUNDA AI</h1>
+                            <p className="text-slate-400 text-sm mt-2">Acceso Seguro Empresarial</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Username</label>
-                                <div className="relative">
-                                    <i className="ph ph-user absolute left-3 top-3 text-slate-500"></i>
-                                    <input type="text" value={user} onChange={e=>setUser(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition text-sm" placeholder="admin" />
-                                </div>
+                                <label className="text-xs font-bold text-slate-400 uppercase">Email</label>
+                                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition" placeholder="admin@abunda.ai" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Password</label>
-                                <div className="relative">
-                                    <i className="ph ph-key absolute left-3 top-3 text-slate-500"></i>
-                                    <input type="password" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white focus:border-blue-500 outline-none transition text-sm" placeholder="••••••" />
-                                </div>
+                                <label className="text-xs font-bold text-slate-400 uppercase">Contraseña</label>
+                                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition" placeholder="•••••••" />
                             </div>
                             
-                            {error && <div className="text-red-400 text-xs text-center bg-red-900/20 p-2 rounded border border-red-900/50 flex items-center justify-center gap-2"><i className="ph ph-warning"></i> {error}</div>}
+                            {error && <div className="text-red-400 text-xs bg-red-900/20 p-2 rounded">{error}</div>}
 
-                            <button type="submit" disabled={loading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50">
-                                {loading ? 'Verifying...' : <span>Access Core <i className="ph ph-arrow-right"></i></span>}
+                            <button disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg transition transform hover:-translate-y-0.5">
+                                {loading ? "Verificando..." : "Ingresar al Sistema"}
                             </button>
                         </form>
+                        <p className="text-center text-slate-600 text-xs mt-6">Powered by Gemini & Maximus Core</p>
                     </div>
                 </div>
             );
         };
 
-        // 2. LANDING PAGE
-        const LandingView = ({ onLoginClick, status, apiUrl, setApiUrl }) => {
-            return (
-                <div className="min-h-screen bg-slate-900 text-white fade-in flex flex-col">
-                    <nav className="p-6 flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-blue-600 p-2 rounded-lg flex items-center justify-center">
-                                <i className="ph ph-stack text-xl text-white"></i>
-                            </div>
-                            <span className="text-2xl font-display font-bold tracking-tight">ABUNDA</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-3 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700 shadow-lg">
-                            {/* Server Configuration Input */}
-                            <div className="flex items-center px-3 border-r border-slate-700">
-                                <span className={`w-2 h-2 rounded-full mr-2 ${status === 'Online' ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-red-500 animate-pulse'}`}></span>
-                                <input 
-                                    type="text" 
-                                    value={apiUrl}
-                                    onChange={(e) => setApiUrl(e.target.value)}
-                                    className="bg-transparent text-xs text-slate-300 focus:text-white focus:outline-none w-48 md:w-64 font-mono placeholder-slate-600"
-                                    placeholder="Server URL (Ngrok)"
-                                />
-                            </div>
-                            
-                            <button onClick={onLoginClick} className="px-6 py-2 bg-white text-slate-900 rounded-lg font-bold hover:bg-blue-50 transition text-xs uppercase tracking-wider">
-                                Login
-                            </button>
-                        </div>
-                    </nav>
-
-                    <header className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold mb-8 uppercase tracking-widest ${status === 'Online' ? 'border-green-500/30 bg-green-900/20 text-green-400' : 'border-red-500/30 bg-red-900/20 text-red-400'}`}>
-                            <span className={`w-2 h-2 rounded-full ${status === 'Online' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-                            {status === 'Online' ? 'Neural Link Established' : 'Connecting to Server...'}
-                        </div>
-                        <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
-                            Your Company's Data.<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Abunda gives it a Voice.</span>
-                        </h1>
-                        <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12 font-light">
-                            Private Artificial Intelligence Platform.
-                            <br/>Secure RAG. Cloud Vectorization. Zero Hallucinations.
-                        </p>
-                        
-                        <div className="flex gap-4">
-                            <button onClick={onLoginClick} className="px-10 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-bold shadow-2xl shadow-blue-900/50 transition transform hover:-translate-y-1 flex items-center gap-3">
-                                <i className="ph ph-rocket-launch text-xl"></i> Launch Workspace
-                            </button>
-                        </div>
-                    </header>
-
-                    <div className="py-10 border-t border-slate-800 w-full text-center">
-                         <p className="text-slate-500 text-xs tracking-widest uppercase">Trusted by Future Enterprises</p>
-                    </div>
-                </div>
-            );
-        };
-
-        // 3. APP LAYOUT
-        const AppLayout = ({ children, activeTab, setActiveTab, onLogout, currentUser, apiUrl }) => {
-            return (
-                <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans fade-in">
-                    <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800">
-                        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-                            <div className="bg-blue-600 p-1.5 rounded flex items-center justify-center">
-                                <i className="ph ph-stack text-lg text-white"></i>
-                            </div>
-                            <div>
-                                <span className="font-display font-bold text-lg tracking-wide block">ABUNDA</span>
-                                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Pro Workspace</span>
-                            </div>
-                        </div>
-                        
-                        <nav className="flex-1 p-4 space-y-1">
-                            <SidebarItem icon="ph-chat-circle-text" label="RAG Chat" active={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
-                            <SidebarItem icon="ph-upload-simple" label="Knowledge Base" active={activeTab === 'knowledge'} onClick={() => setActiveTab('knowledge')} />
-                            <div className="my-4 pt-4 border-t border-slate-800">
-                                <p className="px-4 text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-2">Admin</p>
-                                <SidebarItem icon="ph-users" label="Users & Roles" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
-                                <SidebarItem icon="ph-gear" label="AI Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
-                                <SidebarItem icon="ph-activity" label="System Logs" active={activeTab === 'logs'} onClick={() => setActiveTab('logs')} />
-                            </div>
-                        </nav>
-
-                        <div className="p-4 border-t border-slate-800 bg-slate-950/50">
-                            <div className="mb-4 px-2">
-                                <div className="text-[10px] text-slate-500 font-mono mb-1">Connected to:</div>
-                                <div className="text-[10px] text-green-400 font-mono truncate" title={apiUrl}>{apiUrl}</div>
-                            </div>
-                            <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition text-sm w-full p-2 rounded-lg hover:bg-slate-800">
-                                <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow-lg">
-                                    {currentUser ? currentUser.name.charAt(0) : 'A'}
-                                </div>
-                                <div className="text-left">
-                                    <p className="font-bold text-xs text-white">{currentUser ? currentUser.name : 'Admin'}</p>
-                                    <p className="text-[10px]">Logout</p>
-                                </div>
-                            </button>
-                        </div>
-                    </aside>
-                    <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-slate-50">
-                        {children}
-                    </main>
-                </div>
-            );
-        };
-
-        const SidebarItem = ({ icon, label, active, onClick }) => (
-            <button onClick={onClick} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-sm font-medium ${active ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><i className={`ph ${icon} text-lg`}></i> {label}</button>
-        );
-
-        // 4. USER MANAGEMENT (Create Users)
-        const UserManagement = () => {
-            const [users, setUsers] = useState([
-                { id: 1, name: "Apollo Invictus", email: "apollo@abunda.io", role: "Super Admin", status: "Active" },
-                { id: 2, name: "Sebastian Tech", email: "dev@abunda.io", role: "Editor", status: "Active" }
+        const ChatInterface = ({ user, apiUrl }) => {
+            const [messages, setMessages] = useState([
+                { role: 'ai', content: `Bienvenido, ${user.name || user.email}. El núcleo Gemini está en línea. ¿En qué puedo ayudarte hoy?` }
             ]);
-            const [showModal, setShowModal] = useState(false);
-            const [newUser, setNewUser] = useState({ name: "", email: "", role: "Viewer", password: "" });
+            const [input, setInput] = useState("");
+            const [loading, setLoading] = useState(false);
+            const bottomRef = useRef(null);
 
-            const addUser = (e) => {
-                e.preventDefault();
-                setUsers([...users, { id: Date.now(), ...newUser, status: "Active" }]);
-                setShowModal(false);
-                setNewUser({ name: "", email: "", role: "Viewer", password: "" });
-            };
+            useEffect(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages]);
 
-            const deleteUser = (id) => {
-                if(confirm("Are you sure you want to delete this user?")) {
-                    setUsers(users.filter(u => u.id !== id));
+            const sendMessage = async () => {
+                if(!input.trim()) return;
+                
+                const newMsg = { role: 'user', content: input };
+                setMessages(prev => [...prev, newMsg]);
+                setInput("");
+                setLoading(true);
+
+                try {
+                    // Llamada al Backend de Heroku (Python + Gemini)
+                    const response = await fetch(`${apiUrl}/api/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            message: newMsg.content,
+                            history: messages // Enviamos contexto
+                        })
+                    });
+
+                    if(!response.ok) throw new Error("Error de conexión con el cerebro.");
+
+                    const data = await response.json();
+                    setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
+
+                } catch (e) {
+                    setMessages(prev => [...prev, { role: 'ai', content: "⚠️ Error: No pude conectar con el servidor. Asegúrate que el backend en Heroku esté activo." }]);
+                } finally {
+                    setLoading(false);
                 }
             };
 
             return (
-                <div className="p-8 max-w-6xl mx-auto fade-in h-full overflow-y-auto">
-                    <div className="flex justify-between items-center mb-8">
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-800 font-display">User Management</h2>
-                            <p className="text-sm text-slate-500">Manage team access and roles.</p>
+                <div className="flex flex-col h-screen bg-slate-950">
+                    {/* Header */}
+                    <header className="h-16 border-b border-slate-800 bg-slate-900 flex items-center px-6 justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <span className="font-bold text-white tracking-wide">ABUNDA <span className="text-blue-400">GEMINI</span></span>
                         </div>
-                        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 flex items-center gap-2 shadow-lg">
-                            <i className="ph ph-plus"></i> Add User
-                        </button>
-                    </div>
+                        <div className="text-xs text-slate-400 flex items-center gap-2">
+                            <i className="ph ph-user"></i> {user.email}
+                        </div>
+                    </header>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-3">User</th>
-                                    <th className="px-6 py-3">Role</th>
-                                    <th className="px-6 py-3">Status</th>
-                                    <th className="px-6 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {users.map(u => (
-                                    <tr key={u.id} className="hover:bg-slate-50 transition">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">{u.name.charAt(0)}</div>
-                                                <div>
-                                                    <p className="font-bold text-slate-700">{u.name}</p>
-                                                    <p className="text-xs text-slate-400">{u.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4"><span className="px-2 py-1 bg-slate-100 rounded text-slate-600 text-xs font-bold border border-slate-200">{u.role}</span></td>
-                                        <td className="px-6 py-4"><span className="text-green-600 text-xs font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> {u.status}</span></td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button onClick={() => deleteUser(u.id)} className="text-slate-400 hover:text-red-500 transition"><i className="ph ph-trash text-lg"></i></button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Add User Modal */}
-                    {showModal && (
-                        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 fade-in">
-                            <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
-                                <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i className="ph ph-x text-lg"></i></button>
-                                <h3 className="text-xl font-bold text-slate-800 mb-6">Create New User</h3>
-                                <form onSubmit={addUser} className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 mb-1">Full Name</label>
-                                        <input required type="text" className="w-full border rounded-lg p-2 text-sm outline-blue-500" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 mb-1">Email</label>
-                                        <input required type="email" className="w-full border rounded-lg p-2 text-sm outline-blue-500" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 mb-1">Role</label>
-                                        <select className="w-full border rounded-lg p-2 text-sm outline-blue-500 bg-white" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}>
-                                            <option>Admin</option>
-                                            <option>Editor</option>
-                                            <option>Viewer</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 mb-1">Password</label>
-                                        <input required type="password" className="w-full border rounded-lg p-2 text-sm outline-blue-500" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
-                                    </div>
-                                    <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition">Create User</button>
-                                </form>
+                    {/* Chat Area */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[80%] p-4 rounded-2xl leading-relaxed shadow-sm ${
+                                    msg.role === 'user' 
+                                    ? 'bg-blue-600 text-white rounded-br-none' 
+                                    : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
+                                }`}>
+                                    {msg.role === 'ai' && <div className="text-[10px] uppercase font-bold text-blue-400 mb-1 flex items-center gap-1"><i className="ph ph-sparkle"></i> Abunda AI</div>}
+                                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                                </div>
                             </div>
+                        ))}
+                        {loading && (
+                            <div className="flex justify-start">
+                                <div className="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={bottomRef}></div>
+                    </div>
+
+                    {/* Input Area */}
+                    <div className="p-4 bg-slate-900 border-t border-slate-800">
+                        <div className="max-w-4xl mx-auto relative">
+                            <input 
+                                type="text" 
+                                value={input}
+                                onChange={e => setInput(e.target.value)}
+                                onKeyPress={e => e.key === 'Enter' && sendMessage()}
+                                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:border-blue-500 transition shadow-inner placeholder:text-slate-500"
+                                placeholder="Pregunta algo a tu base de conocimiento..."
+                                disabled={loading}
+                            />
+                            <button 
+                                onClick={sendMessage}
+                                disabled={loading}
+                                className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center transition disabled:opacity-50"
+                            >
+                                <i className="ph ph-paper-plane-right-fill text-xl"></i>
+                            </button>
                         </div>
-                    )}
-                </div>
-            );
-        };
-
-        // ... [ChatInterface and KnowledgeBase] ...
-        const ChatInterface = ({ apiUrl }) => {
-            const [messages, setMessages] = useState([{ id: 1, role: 'ai', content: 'Secure Link Established. I am ready to process your queries using the cloud brain.', sources: [] }]);
-            const [input, setInput] = useState('');
-            const [loading, setLoading] = useState(false);
-            const endRef = useRef(null);
-            useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
-
-            const handleSend = async () => {
-                if(!input.trim()) return;
-                const userMsg = { id: Date.now(), role: 'user', content: input };
-                setMessages(prev => [...prev, userMsg]);
-                setInput('');
-                setLoading(true);
-                try {
-                    const cleanUrl = apiUrl.replace(/\/$/, "");
-                    const res = await fetch(`${cleanUrl}/api/chat`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' }, body: JSON.stringify({ message: userMsg.content })
-                    });
-                    if (!res.ok) throw new Error("Backend unavailable");
-                    const data = await res.json();
-                    setMessages(prev => [...prev, { id: Date.now()+1, role: 'ai', content: data.response, sources: data.sources || [] }]);
-                } catch (e) { setMessages(prev => [...prev, { id: Date.now()+1, role: 'ai', content: `⚠️ Error: Cannot reach cloud brain at ${apiUrl}.`, isError: true }]); } finally { setLoading(false); }
-            };
-            return (
-                <div className="flex flex-col h-full slide-up">
-                    <header className="h-14 bg-white border-b border-slate-200 flex items-center px-6 shadow-sm z-10"><div className="flex items-center gap-3"><div className="bg-green-100 p-1.5 rounded-md text-green-700"><i className="ph ph-brain text-lg"></i></div><div><h2 className="font-bold text-slate-800 text-sm">Operations Assistant</h2><p className="text-[10px] text-slate-500">Connected to Cloud Llama 3</p></div></div></header>
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50">
-                        {messages.map(msg => (<div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${msg.role === 'user' ? 'bg-slate-900 text-white rounded-br-sm' : 'bg-white text-slate-700 rounded-bl-sm'} ${msg.isError ? 'border-red-500 bg-red-50 text-red-600' : 'border-slate-200'}`}><p className="leading-relaxed text-sm whitespace-pre-wrap">{msg.content}</p></div></div>))}
-                        {loading && <div className="text-xs text-slate-400 animate-pulse ml-2">Thinking...</div>}<div ref={endRef} />
                     </div>
-                    <div className="p-4 bg-white border-t border-slate-200"><div className="max-w-4xl mx-auto relative group"><input className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm" placeholder="Query your documents..." value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} /><button onClick={handleSend} className="absolute right-2 top-2 bottom-2 bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50" disabled={loading}><i className="ph ph-paper-plane-right text-lg"></i></button></div></div>
                 </div>
             );
         };
 
-        const KnowledgeBase = ({ apiUrl }) => {
-            const [uploading, setUploading] = useState(false);
-            const [status, setStatus] = useState("");
-            const [files, setFiles] = useState([]);
-            const fileInputRef = useRef(null);
-            const handleUpload = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                setUploading(true); setStatus("Uploading...");
-                const formData = new FormData();
-                formData.append("file", file);
-                try {
-                    const cleanUrl = apiUrl.replace(/\/$/, "");
-                    const res = await fetch(`${cleanUrl}/api/upload`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
-                    if (!res.ok) throw new Error("Upload failed");
-                    const data = await res.json();
-                    setStatus("✅ Indexed.");
-                    setFiles(prev => [...prev, { id: Date.now(), name: data.filename, size: (file.size/1024).toFixed(1)+" KB", status: 'indexed', date: 'Just now' }]);
-                } catch (error) { setStatus("❌ Error"); } finally { setUploading(false); }
-            };
-            return (
-                <div className="p-8 max-w-5xl mx-auto fade-in slide-up h-full overflow-y-auto">
-                    <div className="flex justify-between items-center mb-8"><h2 className="text-2xl font-bold text-slate-800 font-display">Knowledge Base</h2></div>
-                    <div className="border-2 border-dashed border-slate-300 bg-slate-50 rounded-xl p-10 text-center mb-8 hover:bg-blue-50/50 transition cursor-pointer" onClick={() => !uploading && fileInputRef.current.click()}>
-                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleUpload} accept=".pdf,.txt,.docx" />
-                        <i className="ph ph-upload-simple text-2xl text-slate-600 mb-3 block"></i>
-                        <h3 className="font-bold text-slate-700 text-base">{uploading ? 'Processing...' : 'Click to Upload'}</h3>
-                    </div>
-                    {status && <div className="p-3 mb-6 rounded-lg text-sm font-bold text-center bg-blue-50 text-blue-700">{status}</div>}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><table className="w-full text-sm text-left"><thead className="text-xs text-slate-400 uppercase bg-slate-50 border-b"><tr><th className="px-6 py-3">Filename</th><th className="px-6 py-3">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{files.map(f => (<tr key={f.id}><td className="px-6 py-4 font-medium text-slate-700">{f.name}</td><td className="px-6 py-4 text-green-600">Indexed</td></tr>))}</tbody></table></div>
-                </div>
-            );
-        };
-
-        const SettingsModule = () => (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 fade-in">
-                <div className="bg-slate-100 p-6 rounded-full mb-4"><i className="ph ph-gear text-4xl text-slate-300"></i></div>
-                <h3 className="text-lg font-bold text-slate-700 mb-2">LLM Configuration</h3>
-                <p className="text-center max-w-md text-sm">Temperature adjustment and Model selection.</p>
-            </div>
-        );
-
-        // --- MAIN APP COMPONENT ---
-        const AbundaApp = () => {
-            const [view, setView] = useState('landing');
-            const [activeTab, setActiveTab] = useState('chat');
-            const [apiUrl, setApiUrl] = useState(DEFAULT_API_URL);
-            const [status, setStatus] = useState("Checking...");
-            const [currentUser, setCurrentUser] = useState(null);
-            const [showLogin, setShowLogin] = useState(false);
-
-            useEffect(() => {
-                const check = async () => {
-                    try {
-                        const cleanUrl = apiUrl.replace(/\/$/, "");
-                        const res = await fetch(`${cleanUrl}/`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
-                        if (res.ok) setStatus("Online"); else setStatus("Error");
-                    } catch { setStatus("Offline"); }
-                };
-                check();
-                const interval = setInterval(check, 10000); 
-                return () => clearInterval(interval);
-            }, [apiUrl]);
-
-            const handleLoginSuccess = (user) => {
-                setCurrentUser(user);
-                setShowLogin(false);
-                setView('app');
-            };
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [apiUrl, setApiUrl] = useState(DEFAULT_BACKEND_URL);
 
             return (
                 <React.Fragment>
-                    {showLogin && <LoginScreen onCancel={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />}
-                    {view === 'landing' ? (
-                        <LandingView onLogin={() => setShowLogin(true)} status={status} apiUrl={apiUrl} setApiUrl={setApiUrl} />
+                    {!user ? (
+                        <LoginScreen onLoginSuccess={setUser} />
                     ) : (
-                        <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setView('landing')} currentUser={currentUser} apiUrl={apiUrl}>
-                            {activeTab === 'chat' && <ChatInterface apiUrl={apiUrl} />}
-                            {activeTab === 'knowledge' && <KnowledgeBase apiUrl={apiUrl} />}
-                            {activeTab === 'users' && <UserManagement />}
-                            {activeTab === 'settings' && <SettingsModule />}
-                        </AppLayout>
+                        <ChatInterface user={user} apiUrl={apiUrl} />
                     )}
                 </React.Fragment>
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<AbundaApp />);
+        root.render(<App />);
     </script>
 </body>
 </html>
