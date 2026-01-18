@@ -41,11 +41,10 @@
         // CONFIGURACIÓN DEL SOBERANO
         // ==========================================
         
-        // Su Backend en Heroku (Confirmado que está online)
+        // Backend URL (Debe coincidir con su app de Heroku)
         const DEFAULT_BACKEND_URL = "https://abunda-bca693eb3dbb.herokuapp.com"; 
 
         // CONFIGURACIÓN FIREBASE (Modo Estricto)
-        // Asegúrese que estos datos son COPIADOS de su consola de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC8Qqq7F1kGvaNlTzL5gRQWTdMBVjuEamQ", 
             authDomain: "abunda-ai.firebaseapp.com",
@@ -56,7 +55,7 @@
         };
 
         // ==========================================
-        // INICIALIZACIÓN (SIN FALLBACKS)
+        // INICIALIZACIÓN
         // ==========================================
 
         let db = null; 
@@ -88,14 +87,12 @@
                 setError("");
 
                 try {
-                    // INTENTO DE LOGIN REAL
                     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
                     console.log("✅ Usuario Autenticado:", userCredential.user.email);
                     onLoginSuccess(userCredential.user);
                 } catch (err) {
                     console.error("❌ Error Login:", err);
                     let msg = err.message;
-                    // Traducción de errores comunes para el usuario
                     if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "Correo o contraseña incorrectos.";
                     if(err.code === 'auth/user-not-found') msg = "Este usuario no existe en el sistema.";
                     if(err.code === 'auth/invalid-email') msg = "El formato del correo no es válido.";
@@ -153,7 +150,6 @@
 
             useEffect(() => {
                 if(db && user) {
-                    // Cargar documentos
                     db.collection("knowledge")
                       .orderBy("timestamp", "desc")
                       .get()
@@ -180,7 +176,6 @@
                     });
                     
                     setNewDocContent("");
-                    // Recargar
                     const snapshot = await db.collection("knowledge").orderBy("timestamp", "desc").get();
                     setDocs(snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})));
                     
@@ -286,7 +281,6 @@
                 setLoading(true);
 
                 try {
-                    // RECUPERAR CONOCIMIENTO (RAG SIMPLE)
                     let context = "";
                     if(db) {
                         try {
@@ -296,7 +290,7 @@
                                 context = `INFORMACIÓN DE LA EMPRESA:\n${docsContent}\n\n`;
                             }
                         } catch (err) {
-                            console.warn("No se pudo leer el conocimiento (posible error de permisos):", err);
+                            console.warn("RAG Warning:", err);
                         }
                     }
 
@@ -313,14 +307,18 @@
                         })
                     });
 
-                    if(!response.ok) throw new Error("Error HTTP: " + response.status);
+                    if(!response.ok) {
+                        const errorData = await response.json(); // Intentar leer el error del backend si existe
+                        const detail = errorData.detail || response.statusText;
+                        throw new Error(`Error ${response.status}: ${detail}`);
+                    }
 
                     const data = await response.json();
                     setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
 
                 } catch (e) {
-                    console.error(e);
-                    setMessages(prev => [...prev, { role: 'ai', content: "⚠️ Error: No pude conectar con el cerebro. Revisa tu conexión o el servidor Heroku." }]);
+                    console.error("CHAT ERROR:", e);
+                    setMessages(prev => [...prev, { role: 'ai', content: `⚠️ Error de Conexión: ${e.message}. \n\nSugerencia: Verifica que hayas puesto la GEMINI_API_KEY en Heroku (Config Vars).` }]);
                 } finally {
                     setLoading(false);
                 }
