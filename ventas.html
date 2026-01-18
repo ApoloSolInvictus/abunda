@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABUNDA AI | Inteligencia Empresarial Segura</title>
+    <meta name="description" content="El Sistema Operativo de Conocimiento para empresas modernas. Centraliza documentos, entrena a tu equipo y obtén respuestas instantáneas con IA privada.">
+    
+    <!-- Estilos y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Configuración Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#152033',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #0f172a; color: white; overflow-x: hidden; }
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .feature-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- NAV -->
+    <nav class="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="ph ph-sparkle-fill text-white text-lg"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight">ABUNDA <span class="text-blue-400">AI</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#features" class="hover:text-white transition">Características</a>
+                <a href="#security" class="hover:text-white transition">Seguridad</a>
+                <a href="#pricing" class="hover:text-white transition">Planes</a>
+                <a href="#faq" class="hover:text-white transition">Preguntas</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-sm font-medium text-slate-300 hover:text-white hidden md:block">Acceder</a>
+                <a href="#contact" class="px-5 py-2.5 bg-white text-slate-900 font-bold rounded-lg text-sm hover:bg-blue-50 transition shadow-lg shadow-white/5">
+                    Agendar Demo
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
+        <div class="hero-glow"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-8 animate-fade-in-up">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                Disponible ahora en Costa Rica
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-display font-bold leading-tight mb-8">
+                El Cerebro Digital de tu <br>
+                <span class="gradient-text">Empresa Inteligente</span>
+            </h1>
+            
+            <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Centraliza manuales, políticas y datos en una IA privada. 
+                Tus empleados obtienen respuestas instantáneas, tú obtienes eficiencia y control total.
+                <br><span class="text-white font-medium">Deja de buscar. Empieza a saber.</span>
+            </p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                <a href="index.html" class="w-full md:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xl shadow-blue-600/20 transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    Iniciar Prueba Gratis
+                    <i class="ph ph-arrow-right-bold"></i>
+                </a>
+                <a href="#how-it-works" class="w-full md:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-slate-700 transition flex items-center justify-center gap-2">
+                    <i class="ph ph-play-circle text-xl"></i>
+                    Ver cómo funciona
+                </a>
+            </div>
+
+            <!-- Social Proof -->
+            <div class="mt-16 pt-8 border-t border-slate-800/50">
+                <p class="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Potenciado por tecnología de clase mundial</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition duration-500">
+                    <!-- Logos simulados con texto/iconos para no usar imágenes externas rotas -->
+                    <div class="flex items-center gap-2 text-white font-bold"><i class="ph ph-google-logo text-2xl"></i> Gemini Pro</div>
+                    <div class="flex items-center gap-2 text-white font-bold"><i class="ph ph-fire text-2xl"></i> Firebase</div>
+                    <div class="flex items-center gap-2 text-white font-bold"><i class="ph ph-cloud text-2xl"></i> Cloud Secure</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="py-24 bg-slate-850 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">Más que un Chatbot. <br>Es tu Activo más Valioso.</h2>
+                <p class="text-slate-400">Abunda AI transforma documentos estáticos (PDFs, Word, Excel) en conversaciones dinámicas y respuestas precisas.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="feature-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition duration-300">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
+                        <i class="ph ph-files text-2xl text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Gestión Documental</h3>
+                    <p class="text-slate-400 leading-relaxed">Sube manuales de RRHH, fichas técnicas o procesos de ventas. Abunda lo lee todo en segundos y lo memoriza.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="feature-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-purple-500/50 transition duration-300">
+                    <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6">
+                        <i class="ph ph-shield-check text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Privacidad Primero</h3>
+                    <p class="text-slate-400 leading-relaxed">Tus datos no entrenan modelos públicos. Usamos silos de información aislados para cada cliente empresarial.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="feature-card bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-green-500/50 transition duration-300">
+                    <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-6">
+                        <i class="ph ph-lightning text-2xl text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Respuestas en Tiempo Real</h3>
+                    <p class="text-slate-400 leading-relaxed">Olvídate de buscar en carpetas compartidas. Pregunta al chat y obtén la respuesta con cita de la fuente exacta.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section id="how-it-works" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-6">Ideal para equipos de alto rendimiento</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="mt-1"><i class="ph ph-check-circle-fill text-blue-500 text-xl"></i></div>
+                        <div>
+                            <h4 class="font-bold text-lg">Onboarding de Empleados</h4>
+                            <p class="text-slate-400 text-sm">Reduce el tiempo de entrenamiento de semanas a días. El nuevo empleado le pregunta a Abunda, no a su jefe.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="mt-1"><i class="ph ph-check-circle-fill text-blue-500 text-xl"></i></div>
+                        <div>
+                            <h4 class="font-bold text-lg">Soporte Técnico & Ventas</h4>
+                            <p class="text-slate-400 text-sm">Acceso inmediato a especificaciones de productos y solucionarios de problemas mientras están con el cliente.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="mt-1"><i class="ph ph-check-circle-fill text-blue-500 text-xl"></i></div>
+                        <div>
+                            <h4 class="font-bold text-lg">Legal y Cumplimiento</h4>
+                            <p class="text-slate-400 text-sm">Verifica políticas internas y regulaciones al instante sin llamar al departamento legal.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-purple-600/20 blur-3xl rounded-full"></div>
+                <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 relative shadow-2xl">
+                    <!-- Chat Simulation -->
+                    <div class="space-y-4">
+                        <div class="flex justify-end">
+                            <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-br-sm text-sm max-w-[80%]">
+                                ¿Cuál es la política de viáticos para viajes nacionales?
+                            </div>
+                        </div>
+                        <div class="flex justify-start">
+                            <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-bl-sm text-sm max-w-[90%] border border-slate-700">
+                                <div class="text-[10px] uppercase font-bold text-blue-400 mb-1 flex items-center gap-1"><i class="ph ph-sparkle"></i> Abunda AI</div>
+                                Según el documento <strong>"Políticas de Gastos 2025"</strong>, página 12:
+                                <br><br>
+                                Se cubren hasta <strong>$50 USD diarios</strong> para alimentación en viajes nacionales. Se debe presentar factura electrónica a nombre de la empresa.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="py-24 bg-slate-850 border-y border-slate-800 relative">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">Planes Transparentes</h2>
+                <p class="text-slate-400">Invierte en productividad, no en licencias complicadas.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Starter -->
+                <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800 hover:border-slate-600 transition">
+                    <h3 class="text-lg font-bold text-white mb-2">Starter</h3>
+                    <div class="text-3xl font-bold mb-6">$49<span class="text-sm font-normal text-slate-500">/mes</span></div>
+                    <p class="text-sm text-slate-400 mb-6">Para pequeñas empresas y startups.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> Hasta 5 Usuarios</li>
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> 100 Documentos</li>
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> Soporte por Email</li>
+                    </ul>
+                    <a href="#contact" class="block w-full py-3 text-center border border-slate-700 rounded-lg hover:bg-slate-800 transition font-medium">Contactar Ventas</a>
+                </div>
+
+                <!-- Pro -->
+                <div class="bg-slate-900 rounded-2xl p-8 border-2 border-blue-600 relative transform md:-translate-y-4 shadow-2xl shadow-blue-900/20">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Más Popular</div>
+                    <h3 class="text-lg font-bold text-white mb-2">Empresarial</h3>
+                    <div class="text-3xl font-bold mb-6">$199<span class="text-sm font-normal text-slate-500">/mes</span></div>
+                    <p class="text-sm text-slate-400 mb-6">Para equipos en crecimiento.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
+                        <li class="flex gap-2"><i class="ph ph-check-circle-fill text-blue-500"></i> Hasta 50 Usuarios</li>
+                        <li class="flex gap-2"><i class="ph ph-check-circle-fill text-blue-500"></i> Documentos Ilimitados</li>
+                        <li class="flex gap-2"><i class="ph ph-check-circle-fill text-blue-500"></i> Soporte Prioritario</li>
+                        <li class="flex gap-2"><i class="ph ph-check-circle-fill text-blue-500"></i> Personalización de Marca</li>
+                    </ul>
+                    <a href="#contact" class="block w-full py-3 text-center bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition font-bold">Comenzar Ahora</a>
+                </div>
+
+                <!-- Enterprise -->
+                <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800 hover:border-slate-600 transition">
+                    <h3 class="text-lg font-bold text-white mb-2">Custom</h3>
+                    <div class="text-3xl font-bold mb-6">Cotizar</div>
+                    <p class="text-sm text-slate-400 mb-6">Para grandes corporaciones.</p>
+                    <ul class="space-y-3 mb-8 text-sm text-slate-300">
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> Usuarios Ilimitados</li>
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> Integración API Total</li>
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> Servidor Dedicado</li>
+                        <li class="flex gap-2"><i class="ph ph-check text-blue-500"></i> SLA Garantizado</li>
+                    </ul>
+                    <a href="#contact" class="block w-full py-3 text-center border border-slate-700 rounded-lg hover:bg-slate-800 transition font-medium">Hablar con Experto</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-24 px-6">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-display font-bold text-center mb-12">Preguntas Frecuentes</h2>
+            
+            <div class="space-y-4">
+                <details class="group bg-slate-900 rounded-xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-white">
+                        <h3 class="font-bold">¿Mis documentos son privados?</h3>
+                        <span class="shrink-0 rounded-full bg-slate-800 p-1.5 text-slate-400 sm:p-3">
+                            <i class="ph ph-caret-down group-open:rotate-180 transition"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 leading-relaxed text-slate-400">
+                        Absolutamente. Abunda AI utiliza silos de datos aislados. Tu información nunca se usa para entrenar modelos públicos de Google u otros. Tú eres el único dueño de tu data.
+                    </p>
+                </details>
+
+                <details class="group bg-slate-900 rounded-xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-white">
+                        <h3 class="font-bold">¿Qué tipo de archivos puedo subir?</h3>
+                        <span class="shrink-0 rounded-full bg-slate-800 p-1.5 text-slate-400 sm:p-3">
+                            <i class="ph ph-caret-down group-open:rotate-180 transition"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 leading-relaxed text-slate-400">
+                        Actualmente soportamos texto plano, PDFs y contenido copiado directamente al "Cerebro". Estamos trabajando en integraciones directas con Google Drive y Office 365.
+                    </p>
+                </details>
+
+                <details class="group bg-slate-900 rounded-xl border border-slate-800 p-6 [&_summary::-webkit-details-marker]:hidden">
+                    <summary class="flex cursor-pointer items-center justify-between gap-1.5 text-white">
+                        <h3 class="font-bold">¿Ofrecen implementación en sitio (On-Premise)?</h3>
+                        <span class="shrink-0 rounded-full bg-slate-800 p-1.5 text-slate-400 sm:p-3">
+                            <i class="ph ph-caret-down group-open:rotate-180 transition"></i>
+                        </span>
+                    </summary>
+                    <p class="mt-4 leading-relaxed text-slate-400">
+                        Para clientes Enterprise, ofrecemos despliegues dedicados en servidores privados o nubes específicas bajo contrato. Contáctanos para más detalles.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 py-12 border-t border-slate-900 text-sm">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 mb-8">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="font-display font-bold text-xl">ABUNDA <span class="text-blue-500">AI</span></span>
+                </div>
+                <p class="text-slate-500 max-w-xs">
+                    Impulsando la productividad empresarial en Costa Rica y el mundo con Inteligencia Artificial ética y segura.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Producto</h4>
+                <ul class="space-y-2 text-slate-500">
+                    <li><a href="#" class="hover:text-blue-400">Características</a></li>
+                    <li><a href="#" class="hover:text-blue-400">Seguridad</a></li>
+                    <li><a href="#" class="hover:text-blue-400">Precios</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Legal</h4>
+                <ul class="space-y-2 text-slate-500">
+                    <li><a href="#" class="hover:text-blue-400">Privacidad</a></li>
+                    <li><a href="#" class="hover:text-blue-400">Términos</a></li>
+                    <li><a href="#" class="hover:text-blue-400">Contacto</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-900 text-center text-slate-600">
+            &copy; 2026 Abunda AI - Apollo Sol Invictus. Todos los derechos reservados. San José, Costa Rica.
+        </div>
+    </footer>
+
+</body>
+</html>
