@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABUNDA SaaS | Strategic Vision 2026-2031</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-blue: #2563eb;
+            --brand-dark: #0f172a;
+            --brand-accent: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Hero Pattern */
+        .hero-bg {
+            background-color: var(--brand-dark);
+            background-image: radial-gradient(#3b82f6 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <div class="bg-blue-600 text-white p-1 rounded">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <span class="font-display font-bold text-xl text-slate-800">ABUNDA</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">V2.0 STRATEGY</span>
+                </div>
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                    <a href="#financials" class="hover:text-blue-600">Proyección 5 Años</a>
+                    <a href="#metrics" class="hover:text-blue-600">Unit Economics</a>
+                    <a href="#roadmap" class="hover:text-blue-600">Roadmap Técnico</a>
+                    <a href="#valuation" class="hover:text-blue-600">Exit Scenario</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero-bg text-white py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/90"></div>
+        <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">El Sistema Operativo del<br><span class="text-blue-400">Conocimiento Empresarial</span></h1>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-10">
+                IA Privada + RAG Empresarial. Transformando documentos estáticos en inteligencia operativa.
+                <br>Privacidad total. Soberanía de datos. Escalabilidad SaaS.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-12">
+                <div class="bg-white/10 backdrop-blur p-6 rounded-xl border border-white/10">
+                    <p class="text-gray-400 text-sm uppercase tracking-widest mb-2">MARGEN BRUTO</p>
+                    <p class="text-4xl font-bold text-green-400">81%</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur p-6 rounded-xl border border-white/10">
+                    <p class="text-gray-400 text-sm uppercase tracking-widest mb-2">TICKET PROMEDIO</p>
+                    <p class="text-4xl font-bold text-blue-400">$179<span class="text-lg text-gray-400">/mo</span></p>
+                </div>
+                <div class="bg-white/10 backdrop-blur p-6 rounded-xl border border-white/10">
+                    <p class="text-gray-400 text-sm uppercase tracking-widest mb-2">VALORACIÓN AÑO 5</p>
+                    <p class="text-4xl font-bold text-purple-400">$38M+</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 py-16 space-y-24">
+
+        <!-- SECTION 1: 5 YEAR PROJECTION -->
+        <section id="financials">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Proyección Financiera (2026-2030)</h2>
+                    <p class="text-gray-500">Crecimiento orgánico sostenido sin dilución de capital.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="updateChart('revenue')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow hover:bg-blue-700 transition">Ingresos vs Ganancias</button>
+                    <button onclick="updateChart('clients')" class="px-4 py-2 bg-white text-slate-600 border border-gray-300 rounded-lg text-sm font-bold hover:bg-gray-50 transition">Crecimiento Clientes</button>
+                </div>
+            </div>
+
+            <div class="card p-6 h-[400px]">
+                <canvas id="growthChart"></canvas>
+            </div>
+
+            <!-- Detailed Breakdown -->
+            <div class="grid md:grid-cols-5 gap-4 mt-8">
+                <!-- Year 1 -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Año 1</h4>
+                    <p class="text-xs text-gray-500">Validación</p>
+                    <hr class="my-2 border-slate-200">
+                    <p class="text-lg font-bold text-blue-600">$107K <span class="text-xs text-gray-400">ARR</span></p>
+                    <p class="text-sm font-semibold text-green-600">$88K <span class="text-xs text-gray-400">Neto</span></p>
+                    <p class="text-xs text-slate-500 mt-2">50 Clientes</p>
+                </div>
+                <!-- Year 2 -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Año 2</h4>
+                    <p class="text-xs text-gray-500">Tracción</p>
+                    <hr class="my-2 border-slate-200">
+                    <p class="text-lg font-bold text-blue-600">$430K <span class="text-xs text-gray-400">ARR</span></p>
+                    <p class="text-sm font-semibold text-green-600">$350K <span class="text-xs text-gray-400">Neto</span></p>
+                    <p class="text-xs text-slate-500 mt-2">200 Clientes</p>
+                </div>
+                <!-- Year 3 -->
+                <div class="bg-white p-4 rounded-lg border-2 border-blue-100 shadow-md transform scale-105">
+                    <h4 class="font-bold text-blue-800 mb-2">Año 3</h4>
+                    <p class="text-xs text-blue-500 font-bold">Consolidación</p>
+                    <hr class="my-2 border-blue-100">
+                    <p class="text-xl font-black text-blue-700">$1.29M <span class="text-xs text-gray-400">ARR</span></p>
+                    <p class="text-md font-bold text-green-600">$1.05M <span class="text-xs text-gray-400">Neto</span></p>
+                    <p class="text-xs text-slate-500 mt-2">600 Clientes</p>
+                </div>
+                <!-- Year 4 -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Año 4</h4>
+                    <p class="text-xs text-gray-500">Escala Regional</p>
+                    <hr class="my-2 border-slate-200">
+                    <p class="text-lg font-bold text-blue-600">$3.22M <span class="text-xs text-gray-400">ARR</span></p>
+                    <p class="text-sm font-semibold text-green-600">$2.63M <span class="text-xs text-gray-400">Neto</span></p>
+                    <p class="text-xs text-slate-500 mt-2">1,500 Clientes</p>
+                </div>
+                <!-- Year 5 -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Año 5</h4>
+                    <p class="text-xs text-gray-500">Madurez</p>
+                    <hr class="my-2 border-slate-200">
+                    <p class="text-lg font-bold text-blue-600">$6.44M <span class="text-xs text-gray-400">ARR</span></p>
+                    <p class="text-sm font-semibold text-green-600">$5.26M <span class="text-xs text-gray-400">Neto</span></p>
+                    <p class="text-xs text-slate-500 mt-2">3,000 Clientes</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: UNIT ECONOMICS & PRICING -->
+        <section id="metrics" class="grid md:grid-cols-2 gap-12">
+            <div>
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i data-lucide="tag" class="text-blue-600"></i> Modelo de Precios (SaaS)
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg">
+                        <div>
+                            <span class="font-bold text-slate-700">Starter</span>
+                            <span class="text-xs text-gray-500 block">Micro Empresa</span>
+                        </div>
+                        <span class="font-mono font-bold text-lg">$49 <span class="text-xs text-gray-400">/mo</span></span>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-white border-l-4 border-blue-500 shadow-sm rounded-r-lg">
+                        <div>
+                            <span class="font-bold text-blue-700">Pro (Core)</span>
+                            <span class="text-xs text-gray-500 block">PYME Estándar</span>
+                        </div>
+                        <span class="font-mono font-bold text-lg text-blue-600">$149 <span class="text-xs text-gray-400">/mo</span></span>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg">
+                        <div>
+                            <span class="font-bold text-slate-700">Business</span>
+                            <span class="text-xs text-gray-500 block">Empresa Mediana</span>
+                        </div>
+                        <span class="font-mono font-bold text-lg">$349 <span class="text-xs text-gray-400">/mo</span></span>
+                    </div>
+                    <div class="flex justify-between items-center p-4 bg-slate-900 text-white rounded-lg">
+                        <div>
+                            <span class="font-bold">Enterprise</span>
+                            <span class="text-xs text-gray-400 block">Casos Especiales</span>
+                        </div>
+                        <span class="font-mono font-bold text-lg">$799+</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="text-green-600"></i> Costos por Cliente
+                </h3>
+                <div class="card p-8 bg-gradient-to-br from-white to-slate-50">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold">Ticket Promedio</p>
+                            <p class="text-3xl font-black text-slate-800">$179.00</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500 uppercase font-bold">Costo Operativo</p>
+                            <p class="text-3xl font-black text-red-500">-$33.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full bg-gray-200 rounded-full h-4 mb-2 overflow-hidden">
+                        <div class="bg-green-500 h-4 rounded-full" style="width: 81%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold mb-6">
+                        <span class="text-green-600">MARGEN BRUTO (81%)</span>
+                        <span class="text-red-400">COSTOS (19%)</span>
+                    </div>
+
+                    <ul class="space-y-2 text-sm text-gray-600 border-t pt-4">
+                        <li class="flex justify-between"><span>Hosting / Compute</span> <span>$8</span></li>
+                        <li class="flex justify-between"><span>Vector DB / Storage</span> <span>$6</span></li>
+                        <li class="flex justify-between"><span>LLM / Inferencia</span> <span>$12</span></li>
+                        <li class="flex justify-between"><span>Logs / Backups</span> <span>$2</span></li>
+                        <li class="flex justify-between"><span>Soporte Promedio</span> <span>$5</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: TECHNICAL ROADMAP -->
+        <section id="roadmap">
+            <h2 class="text-3xl font-bold text-slate-900 mb-8 text-center">Backlog Técnico & Evolución</h2>
+            <div class="relative">
+                <div class="absolute left-1/2 w-1 h-full bg-gray-200 transform -translate-x-1/2"></div>
+                
+                <!-- Phase 1 -->
+                <div class="relative z-10 flex items-center justify-between mb-12 w-full">
+                    <div class="w-5/12 text-right pr-8">
+                        <h3 class="text-xl font-bold text-slate-800">Fase 1: MVP Funcional</h3>
+                        <p class="text-sm text-gray-500 mt-2">Core RAG, FastAPI Backend, Qdrant Vector Store. Web Chat + WhatsApp Integration.</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">COMPLETADO</span>
+                    </div>
+                    <div class="w-8 h-8 bg-blue-600 rounded-full border-4 border-white shadow flex items-center justify-center text-white font-bold text-xs">1</div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="relative z-10 flex items-center justify-between mb-12 w-full">
+                    <div class="w-5/12 pr-8"></div>
+                    <div class="w-8 h-8 bg-blue-600 rounded-full border-4 border-white shadow flex items-center justify-center text-white font-bold text-xs">2</div>
+                    <div class="w-5/12 pl-8">
+                        <h3 class="text-xl font-bold text-slate-800">Fase 2: Producto Robusto</h3>
+                        <p class="text-sm text-gray-500 mt-2">Panel de Administración, Gestión de Roles (RBAC), Métricas de uso, Ingesta avanzada de documentos (OCR).</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">EN PROCESO</span>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="relative z-10 flex items-center justify-between mb-12 w-full">
+                    <div class="w-5/12 text-right pr-8">
+                        <h3 class="text-xl font-bold text-slate-800">Fase 3: SaaS Escalable</h3>
+                        <p class="text-sm text-gray-500 mt-2">Arquitectura Multi-tenant real, Billing automatizado, API pública para desarrolladores, Verticales por industria.</p>
+                    </div>
+                    <div class="w-8 h-8 bg-slate-300 rounded-full border-4 border-white shadow flex items-center justify-center text-white font-bold text-xs">3</div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: VALUATION & CONCLUSION -->
+        <section id="valuation" class="bg-slate-900 rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            
+            <h2 class="text-4xl font-bold mb-6 relative z-10">El Horizonte de Salida (Exit Strategy)</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto mb-12 relative z-10">
+                Basado en métricas conservadoras de SaaS B2B (6x - 10x ARR).
+                Sin dilución de capital. Sin socios externos.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-8 relative z-10 mb-16">
+                <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                    <p class="text-gray-400 text-sm mb-2">VALORACIÓN PESIMISTA (6x)</p>
+                    <p class="text-3xl font-bold text-blue-400">$38.6M</p>
+                </div>
+                <div class="bg-white/10 border border-blue-500 p-8 rounded-xl transform scale-110 shadow-2xl shadow-blue-900/50">
+                    <p class="text-blue-300 text-sm mb-2 font-bold uppercase tracking-widest">Valoración Objetivo (8x)</p>
+                    <p class="text-5xl font-black text-white">$51.5M</p>
+                </div>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                    <p class="text-gray-400 text-sm mb-2">VALORACIÓN OPTIMISTA (10x)</p>
+                    <p class="text-3xl font-bold text-green-400">$64.4M</p>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto border-t border-gray-800 pt-10 relative z-10">
+                <h3 class="text-xl font-bold mb-4">Declaración Final</h3>
+                <div class="grid md:grid-cols-2 gap-8 text-left">
+                    <div class="bg-red-500/10 p-4 rounded border-l-4 border-red-500">
+                        <p class="font-bold text-red-400 mb-1">ABUNDA NO ES:</p>
+                        <p class="text-sm text-gray-300">Un "side project", un producto chico o algo para "ver qué pasa".</p>
+                    </div>
+                    <div class="bg-green-500/10 p-4 rounded border-l-4 border-green-500">
+                        <p class="font-bold text-green-400 mb-1">ABUNDA SÍ ES:</p>
+                        <p class="text-sm text-gray-300">Un activo SaaS escalable, con márgenes altísimos, demanda real y ventaja competitiva.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-12 text-center text-sm text-gray-500">
+        <p class="font-bold text-slate-900 mb-2">ABUNDA.IO</p>
+        <p>Private Enterprise Intelligence</p>
+        <p class="mt-4">Documento Confidencial - Proyección Interna 2026</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Chart Data
+        const years = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+        const revenueData = [107400, 429600, 1287600, 3222000, 6444000];
+        const profitData = [87600, 350400, 1050000, 2628000, 5256000];
+        const clientData = [50, 200, 600, 1500, 3000];
+
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        let myChart;
+
+        function initChart(type) {
+            if (myChart) myChart.destroy();
+
+            const isRevenue = type === 'revenue';
+            
+            const datasets = isRevenue ? [
+                {
+                    label: 'Ingresos (ARR)',
+                    data: revenueData,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Ganancia Neta',
+                    data: profitData,
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.0)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0.4
+                }
+            ] : [
+                {
+                    label: 'Clientes Activos',
+                    data: clientData,
+                    borderColor: '#9333ea',
+                    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                }
+            ];
+
+            const yAxisCallback = isRevenue 
+                ? function(value) { return '$' + value / 1000 + 'k'; }
+                : function(value) { return value; };
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (isRevenue) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    } else {
+                                        label += context.parsed.y + ' Clientes';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: yAxisCallback }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(type) {
+            initChart(type);
+        }
+
+        // Initialize
+        initChart('revenue');
+    </script>
+</body>
+</html>
