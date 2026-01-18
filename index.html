@@ -15,7 +15,7 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- 3. Firebase SDK (Modular - Usaremos versión compat para simplicidad en HTML) -->
+    <!-- 3. Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -37,14 +37,17 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- CONFIGURACIÓN DEL SISTEMA ---
-        // 1. URL DE HEROKU (Aquí pondrás la URL que te dé Heroku al desplegar)
-        // Ejemplo: "https://abunda-backend-apollo.herokuapp.com"
+        // ==========================================
+        // CONFIGURACIÓN DEL SOBERANO (ÁREA DE EDICIÓN)
+        // ==========================================
+        
+        // 1. URL DE HEROKU (¡Asegúrese que sea la suya!)
         const DEFAULT_BACKEND_URL = "https://abunda-bca693eb3dbb.herokuapp.com/"; 
 
-        // 2. CONFIGURACIÓN FIREBASE (Soberano, reemplaza esto con tus credenciales de consola de Firebase)
+        // 2. CONFIGURACIÓN FIREBASE
+        // Vaya a console.firebase.google.com > Configuración del Proyecto > General > Sus apps > SDK setup y copiélo aquí.
         const firebaseConfig = {
-            apiKey: "AIzaSyC8Qqq7F1kGvaNlTzL5gRQWTdMBVjuEamQ",
+            apiKey: "AIzaSyC8Qqq7F1kGvaNlTzL5gRQWTdMBVjuEamQ", // <--- CAMBIAR ESTO
             authDomain: "abunda-ai.firebaseapp.com",
             projectId: "abunda-ai",
             storageBucket: "abunda-ai.firebasestorage.app",
@@ -52,14 +55,33 @@
             appId: "1:833878539166:web:01a3726d456efd3bbb348f"
         };
 
-        // Inicializar Firebase (Solo si no está inicializado)
-        if (!firebase.apps.length) {
-            // Descomenta la línea de abajo cuando pongas tus credenciales reales
-            // firebase.initializeApp(firebaseConfig);
-            console.log("Firebase placeholder activo. Configura las credenciales en el código.");
+        // ==========================================
+        // LÓGICA DE INICIALIZACIÓN INTELIGENTE
+        // ==========================================
+
+        let isFirebaseActive = false;
+
+        // Detectar si el usuario configuró las llaves reales
+        const isConfigured = firebaseConfig.apiKey !== "PON_TU_API_KEY_AQUI";
+
+        if (isConfigured) {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                    console.log("🔥 Firebase inicializado correctamente.");
+                }
+                isFirebaseActive = true;
+            } catch (e) {
+                console.error("Error inicializando Firebase:", e);
+                alert("Error de configuración Firebase: " + e.message);
+            }
+        } else {
+            console.warn("⚠️ Firebase no configurado. Usando modo SIMULACIÓN.");
         }
 
-        // --- COMPONENTES ---
+        // ==========================================
+        // COMPONENTES
+        // ==========================================
 
         const LoginScreen = ({ onLoginSuccess }) => {
             const [email, setEmail] = useState("");
@@ -71,17 +93,36 @@
                 e.preventDefault();
                 setLoading(true);
                 setError("");
-                
 
-                /* CÓDIGO REAL PARA FIREBASE (Descomentar cuando esté listo):
                 try {
-                    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                    onLoginSuccess(userCredential.user);
-                } catch (error) {
-                    setError(error.message);
-                    setLoading(false);
+                    if (isFirebaseActive) {
+                        // --- MODO REAL (Firebase) ---
+                        // Asegúrese de haber habilitado "Email/Password" en Firebase Console > Authentication
+                        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                        console.log("Login exitoso:", userCredential.user);
+                        onLoginSuccess(userCredential.user);
+                    } else {
+                        // --- MODO SIMULACIÓN (Fallback) ---
+                        // Si no hay llaves, dejamos pasar para probar la interfaz
+                        console.log("Simulando login...");
+                        setTimeout(() => {
+                            if(email.length > 3 && password.length > 3) {
+                                onLoginSuccess({ email: email, uid: "simulated-uid", displayName: "Soberano Apollo" });
+                            } else {
+                                throw new Error("Email o contraseña muy cortos (Simulación).");
+                            }
+                        }, 1000);
+                    }
+                } catch (err) {
+                    console.error("Error de Login:", err);
+                    let msg = err.message;
+                    if(err.code === 'auth/invalid-credential') msg = "Credenciales incorrectas.";
+                    if(err.code === 'auth/invalid-email') msg = "Formato de email inválido.";
+                    if(err.code === 'auth/user-not-found') msg = "Usuario no encontrado.";
+                    setError(msg);
+                    setLoading(false); // IMPORTANTE: Apagar el loading si falla
                 }
-                */
+                // Nota: Si es exitoso, el componente se desmonta, no necesitamos setLoading(false)
             };
 
             return (
@@ -93,7 +134,12 @@
                                 <i className="ph ph-stack text-3xl text-white"></i>
                             </div>
                             <h1 className="text-3xl font-display font-bold text-white">ABUNDA AI</h1>
-                            <p className="text-slate-400 text-sm mt-2">Acceso Seguro Empresarial</p>
+                            <p className="text-slate-400 text-sm mt-2">Sistema Operativo Empresarial</p>
+                            {!isFirebaseActive && (
+                                <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/20 text-yellow-400 text-[10px] rounded border border-yellow-500/30">
+                                    MODO SIMULACIÓN (Falta Config)
+                                </span>
+                            )}
                         </div>
 
                         <form onSubmit={handleLogin} className="space-y-4">
@@ -106,9 +152,15 @@
                                 <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition" placeholder="•••••••" />
                             </div>
                             
-                            {error && <div className="text-red-400 text-xs bg-red-900/20 p-2 rounded">{error}</div>}
+                            {error && (
+                                <div className="text-red-400 text-xs bg-red-900/20 p-3 rounded border border-red-900/50 flex items-start gap-2">
+                                    <i className="ph ph-warning-circle text-lg"></i>
+                                    <span>{error}</span>
+                                </div>
+                            )}
 
-                            <button disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg transition transform hover:-translate-y-0.5">
+                            <button disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg transition transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                                {loading && <i className="ph ph-spinner animate-spin text-xl"></i>}
                                 {loading ? "Verificando..." : "Ingresar al Sistema"}
                             </button>
                         </form>
@@ -120,7 +172,7 @@
 
         const ChatInterface = ({ user, apiUrl }) => {
             const [messages, setMessages] = useState([
-                { role: 'ai', content: `Bienvenido, ${user.name || user.email}. El núcleo Gemini está en línea. ¿En qué puedo ayudarte hoy?` }
+                { role: 'ai', content: `Bienvenido, ${user.displayName || user.email}. \nEl núcleo Gemini está en línea.\n\nServidor conectado: ${apiUrl}` }
             ]);
             const [input, setInput] = useState("");
             const [loading, setLoading] = useState(false);
@@ -137,13 +189,12 @@
                 setLoading(true);
 
                 try {
-                    // Llamada al Backend de Heroku (Python + Gemini)
                     const response = await fetch(`${apiUrl}/api/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             message: newMsg.content,
-                            history: messages // Enviamos contexto
+                            history: messages
                         })
                     });
 
@@ -153,7 +204,7 @@
                     setMessages(prev => [...prev, { role: 'ai', content: data.response }]);
 
                 } catch (e) {
-                    setMessages(prev => [...prev, { role: 'ai', content: "⚠️ Error: No pude conectar con el servidor. Asegúrate que el backend en Heroku esté activo." }]);
+                    setMessages(prev => [...prev, { role: 'ai', content: "⚠️ Error: No pude conectar con el servidor Heroku. Verifica la URL y que el dyno esté activo." }]);
                 } finally {
                     setLoading(false);
                 }
@@ -162,13 +213,18 @@
             return (
                 <div className="flex flex-col h-screen bg-slate-950">
                     {/* Header */}
-                    <header className="h-16 border-b border-slate-800 bg-slate-900 flex items-center px-6 justify-between">
+                    <header className="h-16 border-b border-slate-800 bg-slate-900 flex items-center px-6 justify-between shadow-sm z-20">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                            <span className="font-bold text-white tracking-wide">ABUNDA <span className="text-blue-400">GEMINI</span></span>
+                            <span className="font-bold text-white tracking-wide">ABUNDA <span className="text-blue-400">AI</span></span>
                         </div>
-                        <div className="text-xs text-slate-400 flex items-center gap-2">
-                            <i className="ph ph-user"></i> {user.email}
+                        <div className="flex items-center gap-4">
+                            <div className="text-xs text-slate-400 flex items-center gap-2 bg-slate-800 py-1 px-3 rounded-full border border-slate-700">
+                                <i className="ph ph-user-circle text-lg"></i> {user.email}
+                            </div>
+                            <button onClick={() => window.location.reload()} className="text-slate-400 hover:text-white transition" title="Cerrar Sesión">
+                                <i className="ph ph-sign-out text-xl"></i>
+                            </button>
                         </div>
                     </header>
 
@@ -176,22 +232,22 @@
                     <div className="flex-1 overflow-y-auto p-6 space-y-6">
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] p-4 rounded-2xl leading-relaxed shadow-sm ${
+                                <div className={`max-w-[85%] md:max-w-[70%] p-4 rounded-2xl leading-relaxed shadow-md text-sm md:text-base ${
                                     msg.role === 'user' 
                                     ? 'bg-blue-600 text-white rounded-br-none' 
                                     : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
                                 }`}>
-                                    {msg.role === 'ai' && <div className="text-[10px] uppercase font-bold text-blue-400 mb-1 flex items-center gap-1"><i className="ph ph-sparkle"></i> Abunda AI</div>}
+                                    {msg.role === 'ai' && <div className="text-[10px] uppercase font-bold text-blue-400 mb-2 flex items-center gap-1 border-b border-slate-700 pb-1 mb-2"><i className="ph ph-sparkle"></i> Abunda Core</div>}
                                     <div className="whitespace-pre-wrap">{msg.content}</div>
                                 </div>
                             </div>
                         ))}
                         {loading && (
                             <div className="flex justify-start">
-                                <div className="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
-                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                    <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                                 </div>
                             </div>
                         )}
@@ -200,23 +256,27 @@
 
                     {/* Input Area */}
                     <div className="p-4 bg-slate-900 border-t border-slate-800">
-                        <div className="max-w-4xl mx-auto relative">
+                        <div className="max-w-4xl mx-auto relative group">
+                            <div className="absolute inset-0 bg-blue-600/20 blur-xl rounded-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
                             <input 
                                 type="text" 
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
                                 onKeyPress={e => e.key === 'Enter' && sendMessage()}
-                                className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-4 pr-12 py-4 focus:outline-none focus:border-blue-500 transition shadow-inner placeholder:text-slate-500"
-                                placeholder="Pregunta algo a tu base de conocimiento..."
+                                className="relative w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-5 pr-14 py-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition shadow-xl placeholder:text-slate-500"
+                                placeholder="Escribe tu consulta a la Inteligencia Artificial..."
                                 disabled={loading}
                             />
                             <button 
                                 onClick={sendMessage}
                                 disabled={loading}
-                                className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center transition disabled:opacity-50"
+                                className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center transition disabled:opacity-50 z-10"
                             >
                                 <i className="ph ph-paper-plane-right-fill text-xl"></i>
                             </button>
+                        </div>
+                        <div className="text-center mt-2">
+                            <p className="text-[10px] text-slate-600">Confidencial - Solo uso autorizado - ProfCR</p>
                         </div>
                     </div>
                 </div>
@@ -225,14 +285,23 @@
 
         const App = () => {
             const [user, setUser] = useState(null);
-            const [apiUrl, setApiUrl] = useState(DEFAULT_BACKEND_URL);
+            
+            // Verificamos si ya hay sesión activa en Firebase (Persistencia)
+            useEffect(() => {
+                if(isFirebaseActive) {
+                    const unsubscribe = firebase.auth().onAuthStateChanged((u) => {
+                        if (u) setUser(u);
+                    });
+                    return () => unsubscribe();
+                }
+            }, []);
 
             return (
                 <React.Fragment>
                     {!user ? (
                         <LoginScreen onLoginSuccess={setUser} />
                     ) : (
-                        <ChatInterface user={user} apiUrl={apiUrl} />
+                        <ChatInterface user={user} apiUrl={DEFAULT_BACKEND_URL} />
                     )}
                 </React.Fragment>
             );
@@ -243,6 +312,3 @@
     </script>
 </body>
 </html>
-
-
-
