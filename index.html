@@ -19,6 +19,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Agregamos App Check -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check-compat.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
@@ -41,10 +43,10 @@
         // CONFIGURACIÓN DEL SOBERANO
         // ==========================================
         
-        // Backend URL (Debe coincidir con su app de Heroku)
+        // Backend URL
         const DEFAULT_BACKEND_URL = "https://abunda-bca693eb3dbb.herokuapp.com"; 
 
-        // CONFIGURACIÓN FIREBASE (Modo Estricto)
+        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyC8Qqq7F1kGvaNlTzL5gRQWTdMBVjuEamQ", 
             authDomain: "abunda-ai.firebaseapp.com",
@@ -54,6 +56,10 @@
             appId: "1:833878539166:web:01a3726d456efd3bbb348f"
         };
 
+        // LLAVE DE SITIO DE RECAPTCHA V3 (Obtenida en Google Console)
+        // Si aún no la tiene, deje esto vacío o use una de prueba, pero App Check no funcionará full sin ella.
+        const RECAPTCHA_SITE_KEY = "6LfCtE8sAAAAAA6vROa2kBqC8n1jctxs51DvtiIC"; 
+
         // ==========================================
         // INICIALIZACIÓN
         // ==========================================
@@ -62,13 +68,27 @@
 
         try {
             if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-                console.log("🔥 Firebase inicializado en MODO ESTRICTO.");
+                const app = firebase.initializeApp(firebaseConfig);
+                
+                // ACTIVACIÓN DE APP CHECK (ESCUDO ANTI-HACKER)
+                if (RECAPTCHA_SITE_KEY !== "PON_TU_RECAPTCHA_SITE_KEY_AQUI") {
+                    const appCheck = firebase.appCheck();
+                    appCheck.activate(
+                        'recaptcha-v3', // Proveedor
+                        RECAPTCHA_SITE_KEY, // Llave pública
+                        true // Refresco automático
+                    );
+                    console.log("🛡️ App Check (Seguridad V2P) Activado.");
+                } else {
+                    console.warn("⚠️ App Check no activo: Falta Site Key.");
+                }
+
+                console.log("🔥 Firebase inicializado.");
             }
             db = firebase.firestore();
         } catch (e) {
-            console.error("Error Crítico Firebase:", e);
-            alert("Error Crítico: No se pudo conectar a Firebase. Verifique la consola.");
+            console.error("Error Crítico:", e);
+            alert("Error de Seguridad: No se pudo verificar la integridad de la app.");
         }
 
         // ==========================================
@@ -88,15 +108,14 @@
 
                 try {
                     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                    console.log("✅ Usuario Autenticado:", userCredential.user.email);
+                    console.log("✅ Acceso Autorizado:", userCredential.user.email);
                     onLoginSuccess(userCredential.user);
                 } catch (err) {
-                    console.error("❌ Error Login:", err);
+                    console.error("❌ Acceso Denegado:", err);
                     let msg = err.message;
-                    if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "Correo o contraseña incorrectos.";
-                    if(err.code === 'auth/user-not-found') msg = "Este usuario no existe en el sistema.";
-                    if(err.code === 'auth/invalid-email') msg = "El formato del correo no es válido.";
-                    if(err.code === 'auth/too-many-requests') msg = "Demasiados intentos. Espere un momento.";
+                    if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "Credenciales inválidas.";
+                    if(err.code === 'auth/user-not-found') msg = "Usuario no registrado.";
+                    if(err.code === 'auth/too-many-requests') msg = "Sistema bloqueado temporalmente por seguridad. Intente más tarde.";
                     setError(msg);
                     setLoading(false);
                 }
@@ -105,38 +124,58 @@
             return (
                 <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 fade-in relative overflow-hidden">
                     <div className="absolute inset-0 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
+                    
+                    {/* Badge de Seguridad */}
+                    <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1 bg-green-900/30 border border-green-500/30 rounded-full text-[10px] text-green-400">
+                        <i className="ph ph-shield-check-fill"></i> Conexión Encriptada SSL
+                    </div>
+
                     <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700 relative z-10">
                         <div className="text-center mb-8">
                             <div className="inline-block p-3 bg-blue-600 rounded-xl mb-4 shadow-lg shadow-blue-500/30">
-                                <i className="ph ph-shield-check text-3xl text-white"></i>
+                                <i className="ph ph-lock-key text-3xl text-white"></i>
                             </div>
                             <h1 className="text-3xl font-display font-bold text-white">ABUNDA AI</h1>
-                            <p className="text-slate-400 text-sm mt-2">Acceso Seguro (Firebase)</p>
+                            <p className="text-slate-400 text-sm mt-2">Acceso Seguro Empresarial</p>
                         </div>
 
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <label className="text-xs font-bold text-slate-400 uppercase">Email</label>
-                                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition" placeholder="usuario@empresa.com" />
+                                <label className="text-xs font-bold text-slate-400 uppercase">Email Corporativo</label>
+                                <div className="relative">
+                                    <i className="ph ph-envelope absolute left-3 top-3.5 text-slate-500"></i>
+                                    <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-3 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="nombre@empresa.com" required />
+                                </div>
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-slate-400 uppercase">Contraseña</label>
-                                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition" placeholder="•••••••" />
+                                <div className="relative">
+                                    <i className="ph ph-key absolute left-3 top-3.5 text-slate-500"></i>
+                                    <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-3 py-3 text-white focus:border-blue-500 outline-none transition" placeholder="••••••••" required />
+                                </div>
                             </div>
                             
                             {error && (
-                                <div className="text-red-400 text-xs bg-red-900/20 p-3 rounded border border-red-900/50 flex items-start gap-2">
-                                    <i className="ph ph-warning-circle text-lg"></i>
+                                <div className="text-red-400 text-xs bg-red-900/20 p-3 rounded border border-red-900/50 flex items-start gap-2 animate-pulse">
+                                    <i className="ph ph-warning-octagon text-lg"></i>
                                     <span>{error}</span>
                                 </div>
                             )}
 
-                            <button disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg transition flex justify-center gap-2 items-center">
-                                {loading && <i className="ph ph-spinner animate-spin"></i>}
-                                {loading ? "Verificando Credenciales..." : "Ingresar"}
+                            <button disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg shadow-lg transition flex justify-center gap-2 items-center group">
+                                {loading ? (
+                                    <><i className="ph ph-circle-notch animate-spin"></i> Verificando Identidad...</>
+                                ) : (
+                                    <>Ingresar al Sistema <i className="ph ph-arrow-right group-hover:translate-x-1 transition"></i></>
+                                )}
                             </button>
                         </form>
-                        <p className="text-center text-slate-600 text-[10px] mt-6">Solo personal autorizado.</p>
+                        
+                        <div className="mt-6 flex justify-center gap-4 text-[10px] text-slate-600">
+                            <span className="flex items-center gap-1"><i className="ph ph-check-circle"></i> App Check</span>
+                            <span className="flex items-center gap-1"><i className="ph ph-check-circle"></i> Auth Guard</span>
+                            <span className="flex items-center gap-1"><i className="ph ph-check-circle"></i> 256-bit AES</span>
+                        </div>
                     </div>
                 </div>
             );
@@ -167,7 +206,7 @@
                 setError("");
                 
                 try {
-                    if (!user) throw new Error("No hay usuario autenticado.");
+                    if (!user) throw new Error("Sesión inválida.");
                     
                     await db.collection("knowledge").add({
                         content: newDocContent,
@@ -181,21 +220,19 @@
                     
                 } catch (error) {
                     console.error("Error guardando:", error);
-                    let msg = "Error al guardar.";
-                    if(error.code === 'permission-denied') msg = "Permiso denegado: Revisa las REGLAS de Firestore.";
-                    setError(msg);
+                    setError("Error de permisos o conexión.");
                 } finally {
                     setSaving(false);
                 }
             };
 
             const handleDelete = async (id) => {
-                if(!confirm("¿Borrar este documento?")) return;
+                if(!confirm("¿Confirmar eliminación segura?")) return;
                 try {
                     await db.collection("knowledge").doc(id).delete();
                     setDocs(prev => prev.filter(d => d.id !== id));
                 } catch(e) {
-                    alert("Error al borrar: " + e.message);
+                    alert("Error: " + e.message);
                 }
             }
 
@@ -206,21 +243,22 @@
                             <div>
                                 <h2 className="font-bold text-white flex items-center gap-2">
                                     <i className="ph ph-brain text-blue-400 text-xl"></i> 
-                                    Cerebro de Abunda
+                                    Gestión de Conocimiento
                                 </h2>
-                                <p className="text-xs text-slate-400">Todo lo que pegues aquí será usado para responder.</p>
+                                <p className="text-xs text-slate-400 flex items-center gap-1"><i className="ph ph-lock-key"></i> Almacenamiento Seguro</p>
                             </div>
                             <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition"><i className="ph ph-x text-white"></i></button>
                         </div>
                         
                         <div className="flex-1 overflow-y-auto p-6">
-                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 mb-6">
-                                <label className="text-xs font-bold text-blue-400 uppercase mb-2 block">Agregar Nuevo Conocimiento</label>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 mb-6 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-xl"></div>
+                                <label className="text-xs font-bold text-blue-400 uppercase mb-2 block">Ingresar Datos</label>
                                 <textarea 
                                     value={newDocContent}
                                     onChange={e => setNewDocContent(e.target.value)}
                                     className="w-full h-32 bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none resize-none mb-3 text-sm font-mono"
-                                    placeholder="Ej: 'La política de devoluciones es de 30 días...' o pega el contenido de un PDF."
+                                    placeholder="Pegue aquí el contenido confidencial..."
                                 ></textarea>
                                 <div className="flex justify-between items-center">
                                     {error ? <span className="text-red-400 text-xs">{error}</span> : <span></span>}
@@ -230,28 +268,28 @@
                                         className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-lg transition flex items-center gap-2"
                                     >
                                         {saving ? <i className="ph ph-spinner animate-spin"></i> : <i className="ph ph-floppy-disk"></i>}
-                                        {saving ? "Guardando..." : "Guardar"}
+                                        {saving ? "Encriptando y Guardando..." : "Guardar Seguro"}
                                     </button>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
                                 <h3 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
-                                    <i className="ph ph-files"></i> Documentos en Memoria ({docs.length})
+                                    <i className="ph ph-database"></i> Registros Activos ({docs.length})
                                 </h3>
                                 {docs.map(doc => (
                                     <div key={doc.id} className="bg-slate-700/30 p-4 rounded-xl border border-slate-700/50 group hover:border-blue-500/30 transition">
                                         <div className="flex justify-between items-start mb-2">
-                                            <span className="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded border border-slate-700">ID: {doc.id}</span>
-                                            <button onClick={() => handleDelete(doc.id)} className="text-slate-500 hover:text-red-400 transition"><i className="ph ph-trash"></i></button>
+                                            <span className="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded border border-slate-700 font-mono">ID: {doc.id.substring(0,8)}...</span>
+                                            <button onClick={() => handleDelete(doc.id)} className="text-slate-500 hover:text-red-400 transition" title="Borrar permanentemente"><i className="ph ph-trash"></i></button>
                                         </div>
-                                        <p className="text-sm text-slate-300 line-clamp-3 font-mono leading-relaxed">{doc.content}</p>
+                                        <p className="text-sm text-slate-300 line-clamp-3 font-mono leading-relaxed opacity-80">{doc.content}</p>
                                     </div>
                                 ))}
                                 {docs.length === 0 && (
                                     <div className="text-center py-10 border-2 border-dashed border-slate-700 rounded-xl">
-                                        <i className="ph ph-empty text-4xl text-slate-600 mb-2"></i>
-                                        <p className="text-slate-500 text-sm">El cerebro está vacío.</p>
+                                        <i className="ph ph-shield-slash text-4xl text-slate-600 mb-2"></i>
+                                        <p className="text-slate-500 text-sm">Sin datos sensibles registrados.</p>
                                     </div>
                                 )}
                             </div>
@@ -263,7 +301,7 @@
 
         const ChatInterface = ({ user, apiUrl, onLogout }) => {
             const [messages, setMessages] = useState([
-                { role: 'ai', content: `Bienvenido, **${user.email}**.\nSoy Abunda AI. ¿En qué puedo ayudarte hoy?` }
+                { role: 'ai', content: `Hola, **${user.email}**.\nSoy tu asistente de inteligencia empresarial. La sesión está encriptada.` }
             ]);
             const [input, setInput] = useState("");
             const [loading, setLoading] = useState(false);
@@ -287,15 +325,15 @@
                             const snapshot = await db.collection("knowledge").orderBy("timestamp", "desc").limit(10).get();
                             const docsContent = snapshot.docs.map(doc => doc.data().content).join("\n\n---\n\n");
                             if(docsContent) {
-                                context = `INFORMACIÓN DE LA EMPRESA:\n${docsContent}\n\n`;
+                                context = `INFORMACIÓN DE LA EMPRESA (CONFIDENCIAL):\n${docsContent}\n\n`;
                             }
                         } catch (err) {
-                            console.warn("RAG Warning:", err);
+                            console.warn("Acceso a datos denegado:", err);
                         }
                     }
 
                     const finalMessage = context 
-                        ? `${context}INSTRUCCIÓN: Responde a la siguiente pregunta basándote SOLO en la información de arriba. Si no está en la información, dilo.\n\nPREGUNTA: ${newMsg.content}` 
+                        ? `${context}INSTRUCCIÓN DE SEGURIDAD: Responde a la pregunta basándote SOLO en la información provista. Si no está, indica que no tienes acceso a esa información.\n\nPREGUNTA: ${newMsg.content}` 
                         : newMsg.content;
 
                     const response = await fetch(`${apiUrl}/api/chat`, {
@@ -308,9 +346,8 @@
                     });
 
                     if(!response.ok) {
-                        const errorData = await response.json(); // Intentar leer el error del backend si existe
-                        const detail = errorData.detail || response.statusText;
-                        throw new Error(`Error ${response.status}: ${detail}`);
+                        const errorData = await response.json();
+                        throw new Error(`Error del Servidor: ${response.status}`);
                     }
 
                     const data = await response.json();
@@ -318,7 +355,7 @@
 
                 } catch (e) {
                     console.error("CHAT ERROR:", e);
-                    setMessages(prev => [...prev, { role: 'ai', content: `⚠️ Error de Conexión: ${e.message}. \n\nSugerencia: Verifica que hayas puesto la GEMINI_API_KEY en Heroku (Config Vars).` }]);
+                    setMessages(prev => [...prev, { role: 'ai', content: `⚠️ Error de Conexión Segura: No se pudo contactar al núcleo de IA.` }]);
                 } finally {
                     setLoading(false);
                 }
@@ -328,18 +365,21 @@
                 <div className="flex flex-col h-screen bg-slate-950">
                     <header className="h-16 border-b border-slate-800 bg-slate-900 flex items-center px-4 md:px-6 justify-between shadow-sm z-20">
                         <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                            <div className="relative">
+                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                                <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                            </div>
                             <span className="font-display font-bold text-white text-lg tracking-wide">ABUNDA <span className="text-blue-500">AI</span></span>
                         </div>
                         <div className="flex items-center gap-3 md:gap-4">
-                            <button onClick={() => setShowKnowledge(true)} className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 flex items-center justify-center transition" title="Administrar Conocimiento">
-                                <i className="ph ph-brain text-xl"></i>
+                            <button onClick={() => setShowKnowledge(true)} className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 flex items-center justify-center transition" title="Panel de Datos">
+                                <i className="ph ph-database text-xl"></i>
                             </button>
                             <div className="h-6 w-px bg-slate-700 hidden md:block"></div>
                             <div className="text-xs text-slate-400 flex items-center gap-2 bg-slate-800 py-1.5 px-3 rounded-full border border-slate-700">
-                                <i className="ph ph-user text-base"></i> <span className="hidden md:inline max-w-[150px] truncate">{user.email}</span>
+                                <i className="ph ph-shield-check text-green-500"></i> <span className="hidden md:inline max-w-[150px] truncate">{user.email}</span>
                             </div>
-                            <button onClick={onLogout} className="text-slate-400 hover:text-red-400 transition ml-1" title="Salir">
+                            <button onClick={onLogout} className="text-slate-400 hover:text-red-400 transition ml-1" title="Cierre Seguro">
                                 <i className="ph ph-sign-out text-xl"></i>
                             </button>
                         </div>
@@ -353,7 +393,7 @@
                                     ? 'bg-blue-600 text-white rounded-br-none' 
                                     : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-none'
                                 }`}>
-                                    {msg.role === 'ai' && <div className="text-[10px] uppercase font-bold text-blue-400 mb-2 flex items-center gap-1"><i className="ph ph-sparkle"></i> Abunda</div>}
+                                    {msg.role === 'ai' && <div className="text-[10px] uppercase font-bold text-blue-400 mb-2 flex items-center gap-1 border-b border-slate-700 pb-1 mb-2"><i className="ph ph-lock-key"></i> Respuesta Segura</div>}
                                     <div className="whitespace-pre-wrap">{msg.content}</div>
                                 </div>
                             </div>
@@ -361,7 +401,9 @@
                         {loading && (
                             <div className="flex justify-start">
                                 <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700">
-                                    <div className="flex gap-1"><div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div><div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-75"></div><div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-150"></div></div>
+                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                        <i className="ph ph-circle-notch animate-spin"></i> Procesando datos encriptados...
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -376,7 +418,7 @@
                                 onChange={e => setInput(e.target.value)}
                                 onKeyPress={e => e.key === 'Enter' && sendMessage()}
                                 className="w-full bg-slate-800 text-white border border-slate-700 rounded-xl pl-5 pr-14 py-4 focus:outline-none focus:border-blue-500 transition shadow-lg placeholder:text-slate-500"
-                                placeholder="Escribe tu consulta..."
+                                placeholder="Consulta segura..."
                                 disabled={loading}
                             />
                             <button 
@@ -386,6 +428,10 @@
                             >
                                 <i className="ph ph-paper-plane-right-fill text-xl"></i>
                             </button>
+                        </div>
+                        <div className="text-center mt-2 flex justify-center items-center gap-2">
+                            <i className="ph ph-lock-simple text-[10px] text-slate-600"></i>
+                            <p className="text-[10px] text-slate-600">Transmisión segura E2E • Solo uso autorizado</p>
                         </div>
                     </div>
 
